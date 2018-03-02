@@ -100,6 +100,8 @@ drawBarChart(bar_example_1, [10, 30, 40]);
         };
         drawBarChart(bar_example_1, [10, 30, 40]);
 
+        
+        
         var bar_example_2 = {
             elementId: 'bar-example-2',
             width: 400,
@@ -109,16 +111,16 @@ drawBarChart(bar_example_1, [10, 30, 40]);
                 '#00ff00',
                 '#0000ff'
             ],
+            legends: [
+                'Red legend',
+                'Green legend',
+                'Blue legend'
+            ],
             margin: {
                 top: 10,
                 bottom: 70
             },
-            xLabel: 'This is x label',
-            legends: [
-                'Red',
-                'Green',
-                'Blue'
-            ],
+            xLabel: 'This is x label',            
             xScale: {
                 paddingInner: 0.08, // horizonral inner padding for bars
                 paddingOuter: .5, // horizonral outer padding for bars                

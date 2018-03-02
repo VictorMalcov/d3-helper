@@ -152,8 +152,6 @@ function drawBarChart(options, dataset) {
                 return colorScale(i);
             });
 
-
-
     }
 }
 
