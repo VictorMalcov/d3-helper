@@ -1,19 +1,23 @@
 {
-  "name": "d3-helper",
-  "version": "1.0.0",
-  "description": "d3.js helper",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/VictorMalcov/d3-helper.git"
-  },
-  "author": "Victor",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/VictorMalcov/d3-helper/issues"
-  },
-  "homepage": "https://github.com/VictorMalcov/d3-helper#readme"
+    "name": "d3-helper",
+    "version": "1.0.0",
+    "description": "d3.js helper",
+    "main": "index.js",
+    "scripts": {
+        "start": "http-server",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/VictorMalcov/d3-helper.git"
+    },
+    "author": "Victor",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/VictorMalcov/d3-helper/issues"
+    },
+    "homepage": "https://github.com/VictorMalcov/d3-helper#readme",
+    "devDependencies": {
+        "http-server": "^0.11.1"
+    }
 }
