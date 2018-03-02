@@ -54,7 +54,7 @@ function drawBarChart(options, dataset) {
 
 
     // making horizontal grid lines
-    var yGridLines = function () { return d3.axisLeft(yScale) };    
+    var yGridLines = function () { return d3.axisLeft(yScale) };
     svg.append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
         .attr("class", "d3-grid")
@@ -98,22 +98,62 @@ function drawBarChart(options, dataset) {
 
 
     // horizontal label
-    if(isSet(options.xLabel)) {
-        var labelY = height + 20;
-        if(options.xAxis.visible !== false) {
+    if (isSet(options.xLabel)) {
+
+        var labelY = height + margin.top + 15; // constant number is added because text is drawm from bottom to top
+        if (options.xAxis.visible !== false) {
             labelY += 20;
         }
 
         var labelX = (width / 2) - (options.xLabel.length * 2);
 
-        svg.append('g')
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-            .attr('class', 'd3-x-label')
-            .append('text')
+        svg.append('text')
             .text(options.xLabel)
+            .attr('class', 'd3-x-label')
             .attr('x', labelX)
-            .attr('y', labelY);            
-            
+            .attr('y', labelY);
+    }
+
+    // horizontal legends
+    if (isArray(options.legends)) {
+        var legendsTextScale = d3.scaleOrdinal()
+            .range(options.legends)
+            .domain(d3.range(0, dataset.length));
+
+        var legendsBandScale = d3.scaleBand()
+            .domain(d3.range(dataset.length))
+            .rangeRound([0, width]);
+
+
+        var gLegendY = height + margin.top + 10;
+        if(isSet(options.xLabel))
+            gLegendY += 20;
+        
+        var gLegends = svg.append('g')
+            .attr("transform", "translate(" + margin.left + "," + gLegendY + ")");        
+        
+        var gLegendsRects = gLegends.selectAll("rect")
+            .data(options.legends)
+            .enter()
+            .append('g')
+            .attr('class', 'd3-legends')
+            .attr("transform", function(d, i) { return "translate(" + legendsBandScale(i) + "," + 0 + ")"; });
+
+        gLegendsRects.append('text')
+            .text(function (d,i) { return legendsTextScale(i) })            
+            .attr('x', 12)
+            .attr('y', 9);
+        gLegendsRects.append('rect')            
+            .attr('x', 0)
+            .attr('y', 0)
+            .attr('width', 10)
+            .attr('height', 10)
+            .attr('fill', function (d, i) {
+                return colorScale(i);
+            });
+
+
+
     }
 }
 
@@ -147,7 +187,6 @@ function isBarOptionsValid(options) {
 
     return valid;
 }
-
 
 // returns true if value is number
 function isNumber(value) {

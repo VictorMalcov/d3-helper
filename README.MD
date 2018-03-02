@@ -1,7 +1,4 @@
-# d3.js helper
+# Helper functions for d3.js v4
 
-## Bar chart
-
-### Helper functions for d3.js v4
 
 
