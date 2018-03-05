@@ -1,7 +1,7 @@
 
 
 function drawColumnChart(options, dataset) {
-    let isOptionsValid = isColumnOptionsValid(options);
+    let isOptionsValid = areOptionsValid(options);
 
     if (!isOptionsValid) {
         console.error('barChart() options are not valid');
@@ -29,7 +29,7 @@ function drawColumnChart(options, dataset) {
 
     // creating x-scale
     var xScale = d3.scaleBand()
-        .domain(dataset.map(function(d) { return d.label }))
+        .domain(dataset.map(function (d) { return d.label }))
         .rangeRound([0, width]);
     // outer padding for x-scale
     if (isNumber(options.xScale.paddingOuter))
@@ -47,15 +47,20 @@ function drawColumnChart(options, dataset) {
     var colorScale = d3.scaleOrdinal()
         .domain(dataset.map(function (d) { return d.label }))
         .range(dataset.map(function (d) { return d.color }));
-        
-    
+
+
 
     // making horizontal grid lines
-    var yGridLines = function () { return d3.axisLeft(yScale) };
+    var yGridLines = function () {
+        if (isNumber(options.yAxis.ticks))
+            return d3.axisLeft(yScale).ticks(options.yAxis.ticks);
+        else
+            return d3.axisLeft(yScale);
+    };
     svg.append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
         .attr("class", "d3-grid")
-        .call(yGridLines().ticks(4).tickSize(-width).tickFormat(""));
+        .call(yGridLines().tickSize(-width).tickFormat(""));
 
 
     // this g contains chart elements
@@ -72,7 +77,7 @@ function drawColumnChart(options, dataset) {
         .attr("width", xScale.bandwidth())
         .attr("height", function (d) { return height - yScale(d.value); })
         .attr("fill", function (d) { return colorScale(d.label); });
-    
+
 
     // building data point labels
     var dataLabels = g.selectAll('text')
@@ -129,8 +134,8 @@ function drawColumnChart(options, dataset) {
             .range(dataset.map(function (d) { return d.label }))
             .domain(d3.range(0, dataset.length));
 
-        var legendsBandScale = d3.scaleBand()            
-            .domain(dataset.map(function(d) { return d.label }))
+        var legendsBandScale = d3.scaleBand()
+            .domain(dataset.map(function (d) { return d.label }))
             .rangeRound([0, width]);
 
 
@@ -164,7 +169,7 @@ function drawColumnChart(options, dataset) {
     }
 }
 
-function isColumnOptionsValid(options) {
+function areOptionsValid(options) {
     if (typeof (options) === 'undefined' || options === null)
         return false;
 
