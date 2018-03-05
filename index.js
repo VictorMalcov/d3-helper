@@ -14,7 +14,7 @@ function drawBarChart(options, dataset) {
         .attr("height", options.height);
 
     // set margins
-    var margin = { top: 15, right: 15, bottom: 25, left: 25 }; // default margins
+    var margin = { top: 20, right: 15, bottom: 25, left: 25 }; // default margins
     if (options.margin) {
         margin.top = isNumber(options.margin.top) ? options.margin.top : margin.top;
         margin.right = isNumber(options.margin.right) ? options.margin.right : margin.right;
@@ -65,6 +65,7 @@ function drawBarChart(options, dataset) {
     var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 
+    // building rect objects
     var rects = g.selectAll("rect")
         .data(dataset)
         .enter()
@@ -77,6 +78,19 @@ function drawBarChart(options, dataset) {
     if (colorScale !== null) {
         rects.attr("fill", function (d, i) { return colorScale(i); });
     }
+
+    // building data point labels
+    var dataLabels = g.selectAll('text')
+        .data(dataset)
+        .enter()
+        .append("text")
+        .text(function (d) { return d; })
+        .attr("text-anchor", "middle")
+        .attr("x", function (d, i) { return xScale(i) + (xScale.bandwidth() / 2) - 5; })
+        .attr("y", function (d) { return yScale(d) - 4; })
+        .attr('fill', function (d) { return 'black' })
+        .attr("font-family", "sans-serif")
+        .attr("font-size", "11px");
 
 
     // vertical axes and ticks
@@ -100,18 +114,18 @@ function drawBarChart(options, dataset) {
     // horizontal label
     if (isSet(options.xLabel)) {
 
-        var labelY = height + margin.top + 15; // constant number is added because text is drawm from bottom to top
+        var yPosition = height + margin.top + 15; // constant number is added because text is drawm from bottom to top
         if (options.xAxis.visible !== false) {
-            labelY += 20;
+            yPosition += 20;
         }
 
-        var labelX = (width / 2) - (options.xLabel.length * 2);
+        var xPosition = (width / 2) - (options.xLabel.length * 2);
 
         svg.append('text')
             .text(options.xLabel)
             .attr('class', 'd3-x-label')
-            .attr('x', labelX)
-            .attr('y', labelY);
+            .attr('x', xPosition)
+            .attr('y', yPosition);
     }
 
     // horizontal legends
@@ -126,24 +140,24 @@ function drawBarChart(options, dataset) {
 
 
         var gLegendY = height + margin.top + 10;
-        if(isSet(options.xLabel))
+        if (isSet(options.xLabel))
             gLegendY += 20;
-        
+
         var gLegends = svg.append('g')
-            .attr("transform", "translate(" + margin.left + "," + gLegendY + ")");        
-        
+            .attr("transform", "translate(" + margin.left + "," + gLegendY + ")");
+
         var gLegendsRects = gLegends.selectAll("rect")
             .data(options.legends)
             .enter()
             .append('g')
             .attr('class', 'd3-legends')
-            .attr("transform", function(d, i) { return "translate(" + legendsBandScale(i) + "," + 0 + ")"; });
+            .attr("transform", function (d, i) { return "translate(" + legendsBandScale(i) + "," + 0 + ")"; });
 
         gLegendsRects.append('text')
-            .text(function (d,i) { return legendsTextScale(i) })            
+            .text(function (d, i) { return legendsTextScale(i) })
             .attr('x', 12)
             .attr('y', 9);
-        gLegendsRects.append('rect')            
+        gLegendsRects.append('rect')
             .attr('x', 0)
             .attr('y', 0)
             .attr('width', 10)
