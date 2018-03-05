@@ -29,7 +29,7 @@ function drawColumnChart(options, dataset) {
 
     // creating x-scale
     var xScale = d3.scaleBand()
-        .domain(d3.range(dataset.length))
+        .domain(dataset.map(function(d) { return d.label }))
         .rangeRound([0, width]);
     // outer padding for x-scale
     if (isNumber(options.xScale.paddingOuter))
@@ -40,18 +40,15 @@ function drawColumnChart(options, dataset) {
 
     // creating y-scale
     var yScale = d3.scaleLinear()
-        .domain([0, d3.max(dataset)])
+        .domain([0, d3.max(dataset, function (d) { return d.value })])
         .range([height, 0]);
 
     // creating color scale if needed
-    var colorScale = null;
-    if (options.colors && isArray(options.colors)) {
-        colorScale = d3.scaleOrdinal()
-            .range(options.colors)
-            .domain(d3.range(0, dataset.length));
-    }
-
-
+    var colorScale = d3.scaleOrdinal()
+        .domain(dataset.map(function (d) { return d.label }))
+        .range(dataset.map(function (d) { return d.color }));
+        
+    
 
     // making horizontal grid lines
     var yGridLines = function () { return d3.axisLeft(yScale) };
@@ -70,24 +67,22 @@ function drawColumnChart(options, dataset) {
         .data(dataset)
         .enter()
         .append("rect")
-        .attr("x", function (d, i) { return xScale(i); })
-        .attr("y", function (d) { return yScale(d) })
+        .attr("x", function (d) { return xScale(d.label); })
+        .attr("y", function (d) { return yScale(d.value) })
         .attr("width", xScale.bandwidth())
-        .attr("height", function (d) { return height - yScale(d); });
-    // using color scale if colors are passed in
-    if (colorScale !== null) {
-        rects.attr("fill", function (d, i) { return colorScale(i); });
-    }
+        .attr("height", function (d) { return height - yScale(d.value); })
+        .attr("fill", function (d) { return colorScale(d.label); });
+    
 
     // building data point labels
     var dataLabels = g.selectAll('text')
         .data(dataset)
         .enter()
         .append("text")
-        .text(function (d) { return d; })
+        .text(function (d) { return d.value; })
         .attr("text-anchor", "middle")
-        .attr("x", function (d, i) { return xScale(i) + (xScale.bandwidth() / 2) - 5; })
-        .attr("y", function (d) { return yScale(d) - 4; })
+        .attr("x", function (d) { return xScale(d.label) + (xScale.bandwidth() / 2) - 5; })
+        .attr("y", function (d) { return yScale(d.value) - 4; })
         .attr('fill', function (d) { return 'black' })
         .attr("font-family", "sans-serif")
         .attr("font-size", "11px");
@@ -129,13 +124,13 @@ function drawColumnChart(options, dataset) {
     }
 
     // horizontal legends
-    if (isArray(options.legends)) {
+    if (options.labelsBottom === true) {
         var legendsTextScale = d3.scaleOrdinal()
-            .range(options.legends)
+            .range(dataset.map(function (d) { return d.label }))
             .domain(d3.range(0, dataset.length));
 
-        var legendsBandScale = d3.scaleBand()
-            .domain(d3.range(dataset.length))
+        var legendsBandScale = d3.scaleBand()            
+            .domain(dataset.map(function(d) { return d.label }))
             .rangeRound([0, width]);
 
 
@@ -147,11 +142,11 @@ function drawColumnChart(options, dataset) {
             .attr("transform", "translate(" + margin.left + "," + gLegendY + ")");
 
         var gLegendsRects = gLegends.selectAll("rect")
-            .data(options.legends)
+            .data(dataset)
             .enter()
             .append('g')
             .attr('class', 'd3-legends')
-            .attr("transform", function (d, i) { return "translate(" + legendsBandScale(i) + "," + 0 + ")"; });
+            .attr("transform", function (d, i) { return "translate(" + legendsBandScale(d.label) + "," + 0 + ")"; });
 
         gLegendsRects.append('text')
             .text(function (d, i) { return legendsTextScale(i) })
@@ -163,7 +158,7 @@ function drawColumnChart(options, dataset) {
             .attr('width', 10)
             .attr('height', 10)
             .attr('fill', function (d, i) {
-                return colorScale(i);
+                return colorScale(d.label);
             });
 
     }
