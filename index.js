@@ -1,7 +1,7 @@
 
 
-function drawBarChart(options, dataset) {
-    let isOptionsValid = isBarOptionsValid(options);
+function drawColumnChart(options, dataset) {
+    let isOptionsValid = isColumnOptionsValid(options);
 
     if (!isOptionsValid) {
         console.error('barChart() options are not valid');
@@ -169,7 +169,7 @@ function drawBarChart(options, dataset) {
     }
 }
 
-function isBarOptionsValid(options) {
+function isColumnOptionsValid(options) {
     if (typeof (options) === 'undefined' || options === null)
         return false;
 

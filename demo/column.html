@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Bar - add and remove single value</title>
+    <title>Column chart</title>
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
         crossorigin="anonymous">
@@ -52,10 +52,10 @@
         <div class='row'>
             <div class='col-md-6'>
 
-                <svg id='bar-example-1'></svg>
+                <svg id='column-example-1'></svg>
                 <pre>
-var bar_example_1 = {
-    elementId: 'bar-example-1',
+var column_example_1 = {
+    elementId: 'column-example-1',
     width: 400,
     height: 300,
     colors: [
@@ -68,14 +68,14 @@ var bar_example_1 = {
         bottom: 50
     },
 };
-drawBarChart(bar_example_1, [10, 30, 40]);    
+drawColumnChart(column_example_1, [10, 30, 40]);    
                 </pre>
 
             </div>
             <div class='col-md-6 '>
 
 
-                <svg id='bar-example-2'></svg>
+                <svg id='column-example-2'></svg>
                 <pre>
 ### PUT CODE LATER HERE ###
                 </pre>
@@ -85,8 +85,8 @@ drawBarChart(bar_example_1, [10, 30, 40]);
 
 
     <script>
-        var bar_example_1 = {
-            elementId: 'bar-example-1',
+        var column_example_1 = {
+            elementId: 'column-example-1',
             width: 400,
             height: 300,
             colors: [
@@ -98,12 +98,12 @@ drawBarChart(bar_example_1, [10, 30, 40]);
                 bottom: 50
             },
         };
-        drawBarChart(bar_example_1, [10, 30, 40]);
+        drawColumnChart(column_example_1, [10, 30, 40]);
 
         
         
-        var bar_example_2 = {
-            elementId: 'bar-example-2',
+        var column_example_2 = {
+            elementId: 'column-example-2',
             width: 400,
             height: 300,
             colors: [
@@ -121,8 +121,8 @@ drawBarChart(bar_example_1, [10, 30, 40]);
             },
             xLabel: 'This is x label',            
             xScale: {
-                paddingInner: 0.08, // horizonral inner padding for bars
-                paddingOuter: .5, // horizonral outer padding for bars                
+                paddingInner: 0.08, // horizonral inner padding for columns
+                paddingOuter: .5, // horizonral outer padding for columns                
             },
             xAxis: {
                 visible: false, // show or hide x axis                
@@ -131,7 +131,7 @@ drawBarChart(bar_example_1, [10, 30, 40]);
                 ticks: 4 // number of ticks for left axis                
             }
         };
-        drawBarChart(bar_example_2, [8, 22, 33]);
+        drawColumnChart(column_example_2, [8, 22, 33]);
     </script>
 </body>
 
