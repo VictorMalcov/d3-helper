@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Bar chart</title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+        crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp"
+        crossorigin="anonymous">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        crossorigin="anonymous"></script>
+
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="../index.js"></script>
+    <style>
+        svg {
+            border: 0px solid #cc6600;
+        }
+
+        .d3-grid line {
+            stroke: #e2e2e2;
+            shape-rendering: crispEdges;
+        }
+
+        .d3-grid path {
+            stroke-width: 0;
+        }
+
+        text.d3-x-label {
+            fill: #444;
+            font-size: 13px;
+        }
+
+        .d3-legends text {
+            fill: #333;
+            font-size: 12px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class='container-fluid'>
+
+        <h1><a href="index.html">d3-wrapper</a> / Bar chart</h1>
+        <br />
+
+        <div class='row'>
+            <div class='col-md-6'>
+
+                <svg id='bar-example-1'></svg>
+                <pre>
+                </pre>
+
+            </div>
+            <div class='col-md-6 '>
+                
+            </div>
+        </div>
+
+    </div>
+
+
+    <script>
+        var bar_example_1 = {
+            elementId: 'bar-example-1',
+            width: 600,
+            height: 200,
+            margin: {
+                left: 50,
+                right: 30
+            },
+            xAxis: {
+                visible: true, // set to false to hide x-axis 
+                ticks: 7, // number of ticks for x-axis
+                roundToMax: true
+            },
+            yScale: {
+                paddingInner: 0.08, // vertical inner padding for columns
+                paddingOuter: .3, // vertical outer padding for columns                
+            },
+        };
+        var data_1 = [
+            { value: 9, label: 'Sedan', color: '#ce3a2f' },
+            { value: 11, label: 'SUV', color: '#5ac450' },
+            { value: 29, label: 'Truck', color: '#335bcc' },
+        ]
+        drawBarChart(bar_example_1, data_1);
+
+
+
+        
+    </script>
+</body>
+
+</html>

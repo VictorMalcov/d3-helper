@@ -336,6 +336,107 @@ function drawGroupedColumnChart(options, dataset) {
 
 }
 
+function drawBarChart(options, dataset) {
+    let isOptionsValid = areOptionsValid(options);
+
+    if (!isOptionsValid) {
+        console.error('drawBarChart() options are not valid');
+        return;
+    }
+
+    // set width and height of svg element
+    var svg = d3.select('#' + options.elementId);
+    svg.attr("width", options.width)
+        .attr("height", options.height);
+
+    // set margins
+    var margin = { top: 20, right: 15, bottom: 25, left: 25 }; // default margins
+    if (options.margin) {
+        margin.top = isNumber(options.margin.top) ? options.margin.top : margin.top;
+        margin.right = isNumber(options.margin.right) ? options.margin.right : margin.right;
+        margin.bottom = isNumber(options.margin.bottom) ? options.margin.bottom : margin.bottom;
+        margin.left = isNumber(options.margin.left) ? options.margin.left : margin.left;
+    }
+
+    // width and height of element that contains chart bars
+    var width = options.width - margin.left - margin.right;
+    var height = options.height - margin.top - margin.bottom;
+
+    // creating x-scale
+    var xScaleMaxNumber = d3.max(dataset, function (d) { return d.value }); // get the max number from dataset
+    if(options.xAxis.roundToMax === true)
+        xScaleMaxNumber = getWholeMaxNumber(xScaleMaxNumber);
+    var xScale = d3.scaleLinear()
+        .domain([0, xScaleMaxNumber])
+        .range([0, width]);
+
+    // creating y-scale
+    var yScale = d3.scaleBand()
+        .domain(dataset.map(function (d) { return d.label }))
+        .rangeRound([height, 0]);
+    // outer padding for y-scale
+    if (isNumber(options.yScale.paddingOuter))
+        yScale.paddingOuter(options.yScale.paddingOuter);
+    // inner padding for y-scale
+    if (isNumber(options.yScale.paddingInner))
+        yScale.paddingInner(options.yScale.paddingInner);
+
+
+    // creating color scale
+    var colorScale = d3.scaleOrdinal()
+        .domain(dataset.map(function (d) { return d.label }))
+        .range(dataset.map(function (d) { return d.color }));
+
+    // this g contains chart elements
+    var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    // creating bars
+    g.selectAll(".d3-bar")
+        .data(dataset)
+        .enter()
+        .append("rect")
+        .attr("class", "d3-bar")
+        .attr("x", 0)
+        .attr("y", function (d) { debugger; return yScale(d.label) })
+        .attr("height", yScale.bandwidth())
+        .attr("width", function (d) { return xScale(d.value); })
+        .attr("fill", function (d) { return colorScale(d.label); });
+
+    // building data point labels
+    var dataLabels = g.selectAll('text')
+        .data(dataset)
+        .enter()
+        .append("text")
+        .text(function (d) { return d.value; })
+        .attr("text-anchor", "middle")
+        .attr("x", function (d) { return xScale(d.value) + 10 })
+        .attr("y", function (d) { return yScale(d.label) + (yScale.bandwidth() / 2) + 5; })
+        .attr('fill', function (d) { return 'black' })
+        .attr("font-family", "sans-serif")
+        .attr("font-size", "11px");
+
+
+    // horizontal axis
+    if (options.xAxis.visible !== false) {
+        var axisBottom = d3.axisBottom(xScale);
+        if (isNumber(options.xAxis.ticks))
+            axisBottom.ticks(options.xAxis.ticks);
+        g.append("g")
+            .attr("class", "d3-axis-x")
+            .attr("transform", "translate(0," + height + ")")
+            .call(axisBottom);
+    }
+
+    // vertical axis
+    var axisLeft = d3.axisLeft(yScale);    
+    g.append("g")
+        .attr("class", "d3-axix-y")
+        .call(axisLeft);
+
+
+
+}
+
 function areOptionsValid(options) {
     if (typeof (options) === 'undefined' || options === null)
         return false;
@@ -385,4 +486,38 @@ function isArray(value) {
     }
 
     return false;
+}
+
+function getWholeMaxNumber(num) {
+    var len = Math.floor(num).toString().length;
+    var wholeNum = 1;
+    switch (len) {
+        case 2:
+            wholeNum = 10;
+            break;
+        case 3:
+            wholeNum = 100;
+            break;
+        case 4:
+            wholeNum = 1000;
+            break;
+        case 5:
+            wholeNum = 10000;
+            break;
+        case 6:
+            wholeNum = 100000;
+            break;
+        case 7:
+            wholeNum = 1000000;
+            break;
+        case 8:
+            wholeNum = 10000000;
+            break;
+        case 9:
+            wholeNum = 100000000;
+            break;
+    }
+
+    return (Math.floor(num / wholeNum) * wholeNum) + wholeNum;
+
 }
