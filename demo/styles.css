@@ -1,0 +1,22 @@
+svg {
+    border: 0px solid #cc6600;
+}
+
+.d3-grid line {
+    stroke: #e2e2e2;
+    shape-rendering: crispEdges;
+}
+
+.d3-grid path {
+    stroke-width: 0;
+}
+
+text.d3-x-label {
+    fill: #444;
+    font-size: 13px;
+}
+
+.d3-legends text {
+    fill: #333;
+    font-size: 12px;
+}

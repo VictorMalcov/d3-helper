@@ -18,30 +18,7 @@
 
     <script src="https://d3js.org/d3.v4.min.js"></script>
     <script src="../index.js"></script>
-    <style>
-        svg {
-            border: 0px solid #cc6600;
-        }
-
-        .d3-grid line {
-            stroke: #e2e2e2;
-            shape-rendering: crispEdges;
-        }
-
-        .d3-grid path {
-            stroke-width: 0;
-        }
-
-        text.d3-x-label {
-            fill: #444;
-            font-size: 13px;
-        }
-
-        .d3-legends text {
-            fill: #333;
-            font-size: 12px;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
@@ -95,7 +72,7 @@ var column_example_2 = {
         visible: false, // show or hide x axis                
     },
     yAxis: {
-        roundToMax: true, // setting this to true will make x-axis to be max whole number greater that max number from dataset                
+        roundToMax: true, // setting this to true will make x-axis to be max whole number greater that max number from dataset
         ticks: 4 // number of ticks for left axis                
     }
 };

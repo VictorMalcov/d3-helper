@@ -405,11 +405,11 @@ function drawBarChart(options, dataset) {
         .attr("transform", "translate(" + margin.left + "," + (height + margin.top) + ")")
         .attr("class", "d3-grid")
         .call(xGridLines().tickFormat("").tickSizeInner([-height]));
-    
+
 
     // this g contains chart elements
     var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-    
+
 
     // creating bars
     g.selectAll(".d3-bar")
@@ -456,6 +456,74 @@ function drawBarChart(options, dataset) {
 
 
 
+}
+
+function drawPieChart(options, dataset) {
+    let isOptionsValid = areOptionsValid(options);
+
+    if (!isOptionsValid) {
+        console.error('drawPieChart() options are not valid');
+        return;
+    }
+
+    // set width and height of svg element
+    var svg = d3.select('#' + options.elementId);
+    svg.attr("width", options.width)
+        .attr("height", options.height);
+
+    // set margins
+    var margin = { top: 0, right: 0, bottom: 0, left: 0 }; // default margins
+    if (options.margin) {
+        margin.top = isNumber(options.margin.top) ? options.margin.top : margin.top;
+        margin.right = isNumber(options.margin.right) ? options.margin.right : margin.right;
+        margin.bottom = isNumber(options.margin.bottom) ? options.margin.bottom : margin.bottom;
+        margin.left = isNumber(options.margin.left) ? options.margin.left : margin.left;
+    }
+
+    // width and height of element that contains chart bars
+    var width = options.width - margin.left - margin.right;
+    var height = options.height - margin.top - margin.bottom;
+    var radius = Math.min(width, height) / 2;
+
+    // defining radius for pie chart
+    var innerRadius = 0;
+    if(isNumber(options.donutWidth) && options.donutWidth > 0)
+        innerRadius = radius - options.donutWidth;
+    var arc = d3.arc()
+        .outerRadius(radius)
+        .innerRadius(innerRadius);
+
+    // define function to create slices for pie chart
+    var pie = d3.pie()
+        .sort(null) // disable sorting, since dataset should be sorted in correct way
+        .value(function (d) { return d.value; });
+
+    // drawing labels for each slice
+    var label = d3.arc()
+        .outerRadius(radius - 40)
+        .innerRadius(radius - 40);
+
+    // creating color scale
+    var colorScale = d3.scaleOrdinal()
+        .domain(dataset.map(function (d) { return d.label }))
+        .range(dataset.map(function (d) { return d.color }));
+
+    var g = svg.append("g").attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+    var gPie = g.selectAll(".d3-arc")
+        .data(pie(dataset))
+        .enter()
+        .append("g")
+        .attr("class", "d3-arc");
+
+    gPie.append("path")
+        .attr("d", arc)
+        .attr("fill", function (d) { return colorScale(d.data.label); });
+
+    gPie.append("text")
+        .attr("transform", function (d) { return "translate(" + label.centroid(d) + ")"; })
+        .attr("dy", "0.35em")
+        .text(function (d) { return d.value; });
 }
 
 function areOptionsValid(options) {
