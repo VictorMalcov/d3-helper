@@ -369,11 +369,152 @@ function drawStackedColumnChart(options, dataset) {
     var height = options.height - margin.top - margin.bottom;
 
 
-    // get array of labels from groups
+    // change shape of incoming dataset
+    var shapedData = [];
     var groupLabels = [];
-    for (var groupLabelIndex = 0; groupLabelIndex < dataset.data.length; groupLabelIndex++) {
-        groupLabels.push(dataset.data[groupLabelIndex].label);
+    for (var dataIndex = 0; dataIndex < dataset.data.length; dataIndex++) {
+        var dataItem = dataset.data[dataIndex];
+        var item = {};
+        item.__total = 0;
+        item.__label = dataItem.label;
+
+        groupLabels.push(dataItem.label);
+
+
+        for (var valueIndex = 0; valueIndex < dataItem.values.length; valueIndex++) {
+            item[dataItem.values[valueIndex].label] = dataItem.values[valueIndex].value;
+
+            // accumulate total 
+            if (isNumber(dataItem.values[valueIndex].value))
+                item.__total += dataItem.values[valueIndex].value;
+        }
+        shapedData.push(item);
     }
+
+    var labels = dataset.labels.map(function (d) { return d.label });
+
+    // creating group x-scale
+    var xScale = d3.scaleBand()
+        .domain(shapedData.map(function (d) { return d.__label }))
+        .rangeRound([0, width]);
+    // outer padding for x-scale
+    if (isNumber(options.xScale.paddingOuter))
+        xScale.paddingOuter(options.xScale.paddingOuter);
+    // inner padding for x-scale
+    if (isNumber(options.xScale.paddingInner))
+        xScale.paddingInner(options.xScale.paddingInner);
+
+    // create y-scale
+    var yScaleMaxNumber = d3.max(shapedData, function (d) { return d.__total });
+    if (options.yAxis.roundToMax === true)
+        yScaleMaxNumber = getWholeMaxNumber(yScaleMaxNumber);
+    var yScale = d3.scaleLinear()
+        .domain([0, yScaleMaxNumber])
+        .rangeRound([height, 0])
+        .nice();
+
+    // creating color scale if needed
+    var colorScale = d3.scaleOrdinal()
+        .domain(dataset.labels.map(function (d) { return d.label }))
+        .range(dataset.labels.map(function (d) { return d.color }));
+
+
+    // making horizontal grid lines
+    var yGridLines = function () {
+        if (isNumber(options.yAxis.ticks))
+            return d3.axisLeft(yScale).ticks(options.yAxis.ticks);
+        else
+            return d3.axisLeft(yScale);
+    };
+    svg.append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+        .attr("class", "d3-grid")
+        .call(yGridLines().tickSize(-width).tickFormat(""));
+
+    // this g contains chart elements
+    var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    var gGroup = g.append("g")
+        .selectAll("g")
+        .data(d3.stack().keys(labels)(shapedData))
+        .enter()
+        .append("g")
+        .attr("fill", function (d) { return colorScale(d.key); });
+
+    gGroup.selectAll("rect")
+        .data(function (d) { return d; })
+        .enter()
+        .append("rect")
+        .attr("x", function (d) { return xScale(d.data.__label); })
+        .attr("y", function (d) { return yScale(d[1]); })
+        .attr("height", function (d) { return yScale(d[0]) - yScale(d[1]); })
+        .attr("width", xScale.bandwidth());
+
+    var gGroupDataLabels = g.append('g')
+        .selectAll("g")
+        .data(d3.stack().keys(labels)(shapedData))
+        .enter()
+        .append("g");
+
+    gGroupDataLabels.selectAll("text")
+        .data(function (d) { return d; })
+        .enter()
+        .append("text")
+        .text(function (d) { return d[1] - d[0] })
+        .attr("x", function (d) { return xScale(d.data.__label) + (xScale.bandwidth() / 2); })
+        .attr("y", function (d) { return yScale(d[1]) + 16; })
+        .attr('fill', function (d) { return 'black' })
+        .attr("font-family", "sans-serif")
+        .attr("font-size", "12px");
+
+
+
+    // horizontal axis
+    g.append("g")
+        .attr("class", "d3-axis-x")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(xScale));
+
+    // vertical axes and ticks
+    var axisLeft = d3.axisLeft(yScale);
+    if (isNumber(options.yAxis.ticks))
+        axisLeft.ticks(options.yAxis.ticks);
+    g.append("g")
+        .attr("class", "d3-axix-y")
+        .call(axisLeft);
+
+
+    // showing horizontal legends
+    var legendsTextScale = d3.scaleOrdinal()
+        .range(dataset.labels.map(function (d) { return d.label }))
+        .domain(d3.range(0, dataset.labels.length));
+
+    var legendsBandScale = d3.scaleBand()
+        .domain(dataset.labels.map(function (d) { return d.label }))
+        .rangeRound([0, width]);
+    var gLegendY = height + margin.top + 30;
+    var gLegends = svg.append('g')
+        .attr("transform", "translate(" + margin.left + "," + gLegendY + ")");
+
+    var gLegendsRects = gLegends.selectAll("rect")
+        .data(dataset.labels)
+        .enter()
+        .append('g')
+        .attr('class', 'd3-legends')
+        .attr("transform", function (d, i) { return "translate(" + legendsBandScale(d.label) + "," + 0 + ")"; });
+
+    gLegendsRects.append('text')
+        .text(function (d, i) { return legendsTextScale(i) })
+        .attr('x', 12)
+        .attr('y', 9);
+    gLegendsRects.append('rect')
+        .attr('x', 0)
+        .attr('y', 0)
+        .attr('width', 10)
+        .attr('height', 10)
+        .attr('fill', function (d, i) {
+            return colorScale(d.label);
+        });
 }
 
 function drawBarChart(options, dataset) {
