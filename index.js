@@ -480,14 +480,17 @@ function drawPieChart(options, dataset) {
         margin.left = isNumber(options.margin.left) ? options.margin.left : margin.left;
     }
 
+    // legends will be drawn at the bottom
+    var heightOfLegends = dataset.length * 20; // each line takes about 14 pixels
+
     // width and height of element that contains chart bars
     var width = options.width - margin.left - margin.right;
-    var height = options.height - margin.top - margin.bottom;
+    var height = options.height - margin.top - margin.bottom - heightOfLegends;
     var radius = Math.min(width, height) / 2;
 
     // defining radius for pie chart
     var innerRadius = 0;
-    if(isNumber(options.donutWidth) && options.donutWidth > 0)
+    if (isNumber(options.donutWidth) && options.donutWidth > 0)
         innerRadius = radius - options.donutWidth;
     var arc = d3.arc()
         .outerRadius(radius)
@@ -525,6 +528,43 @@ function drawPieChart(options, dataset) {
         .attr("transform", function (d) { return "translate(" + label.centroid(d) + ")"; })
         .attr("dy", "0.35em")
         .text(function (d) { return d.value; });
+
+
+    // drawing legends at the bottom of chart        
+    var legendsYScale = d3.scaleBand()
+        .domain(dataset.map(function (d) { return d.label }))
+        .rangeRound([0, heightOfLegends])
+        .padding(0.05);
+
+    // creating g that contains all legends
+    var gLegends = svg.append("g")
+        .attr('class', 'd3-pie-legends')
+        .attr("transform", "translate(" + 0 + "," + (options.height - heightOfLegends) + ")");
+
+    // creating g for each legen
+    var gLegend = gLegends.selectAll('g')
+        .data(dataset)
+        .enter()
+        .append('g')
+        .attr("transform", function (d) {
+            return "translate(" + 0 + "," + legendsYScale(d.label) + ")";
+        });
+
+    // creating text for each legend
+    gLegend.append('text')
+        .text(function (d) { return d.label })
+        .attr('x', 25)
+        .attr('y', 13);
+    // creating rect with color    
+    gLegend.append('rect')
+        .attr('x', 0)
+        .attr('y', 0)
+        .attr('width', 15)
+        .attr('height', 15)
+        .attr('fill', function (d) {
+            return colorScale(d.label);
+        });
+
 }
 
 function areOptionsValid(options) {
