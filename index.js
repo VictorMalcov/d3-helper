@@ -39,8 +39,11 @@ function drawColumnChart(options, dataset) {
         xScale.paddingInner(options.xScale.paddingInner);
 
     // creating y-scale
+    var yScaleMaxNumber = d3.max(dataset, function (d) { return d.value });
+    if (options.yAxis.roundToMax === true)
+        yScaleMaxNumber = getWholeMaxNumber(yScaleMaxNumber);
     var yScale = d3.scaleLinear()
-        .domain([0, d3.max(dataset, function (d) { return d.value })])
+        .domain([0, yScaleMaxNumber])
         .range([height, 0]);
 
     // creating color scale if needed
@@ -222,10 +225,13 @@ function drawGroupedColumnChart(options, dataset) {
         .padding(0.05); // todo: move this to configuration object
 
     // create y-scale
+    var yScaleMaxNumber = d3.max(dataset.data, function (d) {
+        return d3.max(d.values, function (d) { return d.value; });
+    });
+    if (options.yAxis.roundToMax === true)
+        yScaleMaxNumber = getWholeMaxNumber(yScaleMaxNumber);
     var yScale = d3.scaleLinear()
-        .domain([0, d3.max(dataset.data, function (d) {
-            return d3.max(d.values, function (d) { return d.value; });
-        })])
+        .domain([0, yScaleMaxNumber])
         .rangeRound([height, 0])
         .nice();
 
@@ -364,7 +370,7 @@ function drawBarChart(options, dataset) {
 
     // creating x-scale
     var xScaleMaxNumber = d3.max(dataset, function (d) { return d.value }); // get the max number from dataset
-    if(options.xAxis.roundToMax === true)
+    if (options.xAxis.roundToMax === true)
         xScaleMaxNumber = getWholeMaxNumber(xScaleMaxNumber);
     var xScale = d3.scaleLinear()
         .domain([0, xScaleMaxNumber])
@@ -387,8 +393,23 @@ function drawBarChart(options, dataset) {
         .domain(dataset.map(function (d) { return d.label }))
         .range(dataset.map(function (d) { return d.color }));
 
+
+    // making vertical grid lines
+    var xGridLines = function () {
+        if (isNumber(options.xAxis.ticks))
+            return d3.axisBottom(xScale).ticks(options.xAxis.ticks);
+        else
+            return d3.axisBottom(xScale);
+    };
+    svg.append("g")
+        .attr("transform", "translate(" + margin.left + "," + (height + margin.top) + ")")
+        .attr("class", "d3-grid")
+        .call(xGridLines().tickFormat("").tickSizeInner([-height]));
+    
+
     // this g contains chart elements
     var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    
 
     // creating bars
     g.selectAll(".d3-bar")
@@ -397,7 +418,7 @@ function drawBarChart(options, dataset) {
         .append("rect")
         .attr("class", "d3-bar")
         .attr("x", 0)
-        .attr("y", function (d) { debugger; return yScale(d.label) })
+        .attr("y", function (d) { return yScale(d.label) })
         .attr("height", yScale.bandwidth())
         .attr("width", function (d) { return xScale(d.value); })
         .attr("fill", function (d) { return colorScale(d.label); });
@@ -428,7 +449,7 @@ function drawBarChart(options, dataset) {
     }
 
     // vertical axis
-    var axisLeft = d3.axisLeft(yScale);    
+    var axisLeft = d3.axisLeft(yScale);
     g.append("g")
         .attr("class", "d3-axix-y")
         .call(axisLeft);

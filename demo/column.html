@@ -89,12 +89,13 @@ var column_example_2 = {
     labelsBottom: true, // show column labels under chart 
     xScale: {
         paddingInner: 0.05, // horizontal inner padding for columns
-        paddingOuter: .3, // horizontal outer padding for columns
+        paddingOuter: .3, // horizontal outer padding for columns                
     },
     xAxis: {
         visible: false, // show or hide x axis                
     },
     yAxis: {
+        roundToMax: true, // setting this to true will make x-axis to be max whole number greater that max number from dataset                
         ticks: 4 // number of ticks for left axis                
     }
 };
@@ -168,7 +169,7 @@ drawGroupedColumnChart(grouped_column_example_1, group_data_1);
             height: 300,
             margin: {
                 bottom: 30
-            },
+            }
         };
         var data_1 = [
             { value: 5, label: 'Sedan', color: '#ce3a2f' },
@@ -196,6 +197,7 @@ drawGroupedColumnChart(grouped_column_example_1, group_data_1);
                 visible: false, // show or hide x axis                
             },
             yAxis: {
+                roundToMax: true, // setting this to true will make x-axis to be max whole number greater that max number from dataset
                 ticks: 4 // number of ticks for left axis                
             }
         };
@@ -222,6 +224,9 @@ drawGroupedColumnChart(grouped_column_example_1, group_data_1);
                 paddingInner: 0.05, // horizontal inner padding for columns
                 paddingOuter: .09, // horizontal outer padding for columns                
             },
+            yAxis: {
+                roundToMax: true, // setting this to true will make x-axis to be max whole number greater that max number from dataset
+            }
         };
 
         var group_data_1 = {
@@ -244,7 +249,7 @@ drawGroupedColumnChart(grouped_column_example_1, group_data_1);
                     values: [
                         { value: 20, label: 'Sedan' },
                         { value: 30, label: 'SUV' },
-                        { value: 40, label: 'Truck' }
+                        { value: 47, label: 'Truck' }
                     ]
                 }
             ]
