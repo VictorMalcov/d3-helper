@@ -342,6 +342,40 @@ function drawGroupedColumnChart(options, dataset) {
 
 }
 
+function drawStackedColumnChart(options, dataset) {
+    let isOptionsValid = areOptionsValid(options);
+
+    if (!isOptionsValid) {
+        console.error('drawStackedColumnChart() options are not valid');
+        return;
+    }
+
+    // set width and height of svg element
+    var svg = d3.select('#' + options.elementId);
+    svg.attr("width", options.width)
+        .attr("height", options.height);
+
+    // set margins
+    var margin = { top: 20, right: 15, bottom: 25, left: 25 }; // default margins
+    if (options.margin) {
+        margin.top = isNumber(options.margin.top) ? options.margin.top : margin.top;
+        margin.right = isNumber(options.margin.right) ? options.margin.right : margin.right;
+        margin.bottom = isNumber(options.margin.bottom) ? options.margin.bottom : margin.bottom;
+        margin.left = isNumber(options.margin.left) ? options.margin.left : margin.left;
+    }
+
+    // width and height of element that contains chart bars
+    var width = options.width - margin.left - margin.right;
+    var height = options.height - margin.top - margin.bottom;
+
+
+    // get array of labels from groups
+    var groupLabels = [];
+    for (var groupLabelIndex = 0; groupLabelIndex < dataset.data.length; groupLabelIndex++) {
+        groupLabels.push(dataset.data[groupLabelIndex].label);
+    }
+}
+
 function drawBarChart(options, dataset) {
     let isOptionsValid = areOptionsValid(options);
 

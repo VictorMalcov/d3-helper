@@ -134,6 +134,11 @@ var group_data_1 = {
 drawGroupedColumnChart(grouped_column_example_1, group_data_1);                    
                 </pre>
             </div>
+            <div class='col-md-6'>
+                <svg id='stacked-column-example-1'></svg>
+                <pre>                  
+                </pre>
+            </div>
         </div>
 
     </div>
@@ -207,6 +212,54 @@ drawGroupedColumnChart(grouped_column_example_1, group_data_1);
         };
 
         var group_data_1 = {
+            labels: [
+                { label: 'Sedan', color: '#ce3a2f' },
+                { label: 'SUV', color: '#5ac450' },
+                { label: 'Truck', color: '#335bcc' }
+            ],
+            data: [
+                {
+                    label: 'Honda',
+                    values: [
+                        { value: 11, label: 'Sedan' },
+                        { value: 15, label: 'SUV' },
+                        { value: 30, label: 'Truck' }
+                    ]
+                },
+                {
+                    label: 'Toyota',
+                    values: [
+                        { value: 20, label: 'Sedan' },
+                        { value: 30, label: 'SUV' },
+                        { value: 47, label: 'Truck' }
+                    ]
+                }
+            ]
+        }
+        drawGroupedColumnChart(grouped_column_example_1, group_data_1);
+
+
+
+
+
+        var stacked_column_example_1 = {
+            elementId: 'stacked-column-example-1',
+            width: 600,
+            height: 400,
+            margin: {
+                top: 40,
+                bottom: 40
+            },
+            xScale: {
+                paddingInner: 0.05, // horizontal inner padding for columns
+                paddingOuter: .09, // horizontal outer padding for columns                
+            },
+            xAxis: {
+                roundToMax: true, // setting this to true will make x-axis to be max whole number greater that max number from dataset
+            }
+        };
+
+        var stacked_data_1 = {
             labels: [
                 { label: 'Sedan', color: '#ce3a2f' },
                 { label: 'SUV', color: '#5ac450' },
