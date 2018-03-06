@@ -33,8 +33,21 @@
 
                 <svg id='pie-example-1'></svg>
                 <pre>
+var bar_example_1 = {
+    elementId: 'pie-example-1',
+    width: 300,
+    height: 300,
+    donutWidth: 0, // set to number to create donut chart
+    labelPadding: 10 // how far data labels should be moved close to center of pie chart
+};
+var data_1 = [
+    { value: 9, label: 'Sedan', color: '#ce3a2f' },
+    { value: 11, label: 'SUV', color: '#5ac450' },
+    { value: 129, label: 'Truck', color: '#335bcc' },
+]
+drawPieChart(bar_example_1, data_1);
 
-                </pre>
+        </pre>
 
             </div>
             <div class='col-md-6 '>
@@ -51,7 +64,7 @@
             width: 300,
             height: 300,
             donutWidth: 0, // set to number to create donut chart
-            
+            labelPadding: 10 // how far data labels should be moved close to center of pie chart
         };
         var data_1 = [
             { value: 9, label: 'Sedan', color: '#ce3a2f' },

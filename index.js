@@ -499,9 +499,10 @@ function drawPieChart(options, dataset) {
         .value(function (d) { return d.value; });
 
     // drawing labels for each slice
+    var labelsPadding = isNumber(options.labelPadding) ? options.labelPadding : 0;
     var label = d3.arc()
-        .outerRadius(radius - 40)
-        .innerRadius(radius - 40);
+        .outerRadius(radius - 17 - labelsPadding)
+        .innerRadius(radius - 17 - labelsPadding);
 
     // creating color scale
     var colorScale = d3.scaleOrdinal()
