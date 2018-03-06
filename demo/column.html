@@ -15,13 +15,14 @@
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
         crossorigin="anonymous"></script>
-    
+
     <script src="https://d3js.org/d3.v4.min.js"></script>
     <script src="../index.js"></script>
     <style>
         svg {
             border: 0px solid #cc6600;
         }
+
         .d3-grid line {
             stroke: #e2e2e2;
             shape-rendering: crispEdges;
@@ -44,7 +45,7 @@
 </head>
 
 <body>
-    
+
     <div class='container-fluid'>
 
         <h1>d3-wrapper</h1>
@@ -57,17 +58,17 @@
 var column_example_1 = {
     elementId: 'column-example-1',
     width: 400,
-    height: 300,            
+    height: 300,
     margin: {
         bottom: 30
     },
 };
 var data_1 = [
-    { value: 5, label: 'Red label', color: '#ff0000' },
-    { value: 11, label: 'Green label', color: '#00ff00' },
-    { value: 22, label: 'Blue label', color: '#0000ff' },
+    { value: 5, label: 'Sedan', color: '#ce3a2f' },
+    { value: 11, label: 'SUV', color: '#5ac450' },
+    { value: 22, label: 'Truck', color: '#335bcc' },
 ]
-drawColumnChart(column_example_1, data_1);   
+drawColumnChart(column_example_1, data_1);  
                 </pre>
 
             </div>
@@ -79,15 +80,15 @@ drawColumnChart(column_example_1, data_1);
 var column_example_2 = {
     elementId: 'column-example-2',
     width: 400,
-    height: 300,            
-    margin: {                
+    height: 300,
+    margin: {
         bottom: 70
     },
-    xLabel: 'This is x label',            
+    xLabel: 'Cars sold in Washington D.C.',
     labelsBottom: true, // show column labels under chart 
     xScale: {
-        paddingInner: 0.05, // horizonral inner padding for columns
-        paddingOuter: .3, // horizonral outer padding for columns                
+        paddingInner: 0.05, // horizontal inner padding for columns
+        paddingOuter: .3, // horizontal outer padding for columns                
     },
     xAxis: {
         visible: false, // show or hide x axis                
@@ -98,14 +99,64 @@ var column_example_2 = {
 };
 
 var data_2 = [
-    { value: 8, label: 'Red label', color: '#ff0000' },
-    { value: 22, label: 'Green label', color: '#00ff00' },
-    { value: 33, label: 'Blue label', color: '#0000ff' },
+    { value: 8, label: 'Sedan', color: '#ce3a2f' },
+    { value: 22, label: 'SUV', color: '#5ac450' },
+    { value: 33, label: 'Truck', color: '#335bcc' },
 ]
 drawColumnChart(column_example_2, data_2);
                 </pre>
             </div>
         </div>
+
+
+        <div class='row'>
+            <div class='col-md-6'>
+                <svg id='grouped-column-example-1'></svg>
+                <pre>
+var grouped_column_example_1 = {
+    elementId: 'grouped-column-example-1',
+    width: 600,
+    height: 400,
+    margin: {
+        top: 50,
+        bottom: 70
+    },
+    xScale: {
+        paddingInner: 0.05, // horizontal inner padding for columns
+        paddingOuter: .09, // horizontal outer padding for columns                
+    },
+};
+
+var group_data_1 = {
+    labels: [
+        { label: 'Sedan', color: '#ce3a2f' },
+        { label: 'SUV', color: '#5ac450' },
+        { label: 'Truck', color: '#335bcc' }
+    ],
+    data: [
+        {
+            label: 'Honda',
+            values: [
+                { value: 11, label: 'Sedan' },
+                { value: 15, label: 'SUV' },
+                { value: 30, label: 'Truck' }
+            ]
+        },
+        {
+            label: 'Toyota',
+            values: [
+                { value: 20, label: 'Sedan' },
+                { value: 30, label: 'SUV' },
+                { value: 40, label: 'Truck' }
+            ]
+        }
+    ]
+}
+drawGroupedColumnChart(grouped_column_example_1, group_data_1);                    
+                </pre>
+            </div>
+        </div>
+
     </div>
 
 
@@ -113,32 +164,32 @@ drawColumnChart(column_example_2, data_2);
         var column_example_1 = {
             elementId: 'column-example-1',
             width: 400,
-            height: 300,            
+            height: 300,
             margin: {
                 bottom: 30
             },
         };
         var data_1 = [
-            { value: 5, label: 'Red label', color: '#ff0000' },
-            { value: 11, label: 'Green label', color: '#00ff00' },
-            { value: 22, label: 'Blue label', color: '#0000ff' },
+            { value: 5, label: 'Sedan', color: '#ce3a2f' },
+            { value: 11, label: 'SUV', color: '#5ac450' },
+            { value: 22, label: 'Truck', color: '#335bcc' },
         ]
         drawColumnChart(column_example_1, data_1);
 
-        
-        
+
+
         var column_example_2 = {
             elementId: 'column-example-2',
             width: 400,
-            height: 300,            
-            margin: {                
+            height: 300,
+            margin: {
                 bottom: 70
             },
-            xLabel: 'This is x label',            
+            xLabel: 'Cars sold in Washington D.C.',
             labelsBottom: true, // show column labels under chart 
             xScale: {
-                paddingInner: 0.05, // horizonral inner padding for columns
-                paddingOuter: .3, // horizonral outer padding for columns                
+                paddingInner: 0.05, // horizontal inner padding for columns
+                paddingOuter: .3, // horizontal outer padding for columns                
             },
             xAxis: {
                 visible: false, // show or hide x axis                
@@ -149,11 +200,55 @@ drawColumnChart(column_example_2, data_2);
         };
 
         var data_2 = [
-            { value: 8, label: 'Red label', color: '#ff0000' },
-            { value: 22, label: 'Green label', color: '#00ff00' },
-            { value: 33, label: 'Blue label', color: '#0000ff' },
+            { value: 8, label: 'Sedan', color: '#ce3a2f' },
+            { value: 22, label: 'SUV', color: '#5ac450' },
+            { value: 33, label: 'Truck', color: '#335bcc' },
         ]
         drawColumnChart(column_example_2, data_2);
+
+
+
+
+        var grouped_column_example_1 = {
+            elementId: 'grouped-column-example-1',
+            width: 600,
+            height: 400,
+            margin: {
+                top: 50,
+                bottom: 70
+            },
+            xScale: {
+                paddingInner: 0.05, // horizontal inner padding for columns
+                paddingOuter: .09, // horizontal outer padding for columns                
+            },
+        };
+
+        var group_data_1 = {
+            labels: [
+                { label: 'Sedan', color: '#ce3a2f' },
+                { label: 'SUV', color: '#5ac450' },
+                { label: 'Truck', color: '#335bcc' }
+            ],
+            data: [
+                {
+                    label: 'Honda',
+                    values: [
+                        { value: 11, label: 'Sedan' },
+                        { value: 15, label: 'SUV' },
+                        { value: 30, label: 'Truck' }
+                    ]
+                },
+                {
+                    label: 'Toyota',
+                    values: [
+                        { value: 20, label: 'Sedan' },
+                        { value: 30, label: 'SUV' },
+                        { value: 40, label: 'Truck' }
+                    ]
+                }
+            ]
+        }
+        drawGroupedColumnChart(grouped_column_example_1, group_data_1);
     </script>
 </body>
 
