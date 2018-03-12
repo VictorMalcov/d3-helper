@@ -252,8 +252,11 @@ drawStackedColumnChart(stacked_column_example_1, stacked_data_1);
                 bottom: 50
             },
             xScale: {
-                paddingInner: 0.05, // horizontal inner padding for columns
-                paddingOuter: .09, // horizontal outer padding for columns                
+                paddingInner: 0.1, // horizontal inner padding for columns
+                paddingOuter: .1, // horizontal outer padding for columns
+            },
+            xInnerScale: {
+                paddingInner: 0.04
             },
             yAxis: {
                 roundToMax: true, // setting this to true will make x-axis to be max whole number greater that max number from dataset

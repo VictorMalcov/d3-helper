@@ -221,8 +221,10 @@ function drawGroupedColumnChart(options, dataset) {
     // create group inner x-scale    
     var xInnerScale = d3.scaleBand()
         .domain(dataset.labels.map(function (d) { return d.label }))
-        .rangeRound([0, xScale.bandwidth()])
-        .padding(0.05); // todo: move this to configuration object
+        .rangeRound([0, xScale.bandwidth()]);        
+    if (isNumber(options.xInnerScale.paddingInner))
+        xInnerScale.paddingInner(options.xInnerScale.paddingInner);
+    
 
     // create y-scale
     var yScaleMaxNumber = d3.max(dataset.data, function (d) {
@@ -750,6 +752,7 @@ function areOptionsValid(options) {
 
     // create empty objects to avoit errors when accessing object fields
     options.xScale = options.xScale || {};
+    options.xInnerScale = options.xInnerScale || {};    
     options.xAxis = options.xAxis || {};
     options.yAxis = options.yAxis || {};
 
