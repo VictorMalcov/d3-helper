@@ -89,11 +89,27 @@ function drawColumnChart(options, dataset) {
         .append("text")
         .text(function (d) { return d.value; })
         .attr("text-anchor", "middle")
-        .attr("x", function (d) { return xScale(d.label) + (xScale.bandwidth() / 2) - 5; })
-        .attr("y", function (d) { return yScale(d.value) - 4; })
-        .attr('fill', function (d) { return 'black' })
-        .attr("font-family", "sans-serif")
-        .attr("font-size", "11px");
+        .attr("x", function (d) { 
+            var textLength = d.label.length * 2;
+            return xScale(d.label) + (xScale.bandwidth() / 2) - textLength; 
+        })
+        .attr("y", function (d) { return yScale(d.value) - 4; });
+        
+    // setting font properties
+    if (isSet(options.dataPoint.fontFamily))
+        dataLabels.attr("font-family", options.dataPoint.fontFamily)
+    else
+        dataLabels.attr("font-family", "sans-serif");
+    if (isNumber(options.dataPoint.fontSize))
+        dataLabels.attr("font-size", options.dataPoint.fontSize);
+    else
+        dataLabels.attr("font-size", 12);
+    if (isSet(options.dataPoint.color))
+        dataLabels.attr("fill", options.dataPoint.color);
+    else
+        dataLabels.attr("fill", 'black');
+    if (isSet(options.dataPoint.fontWeight) && options.dataPoint.fontWeight.length > 0)
+        dataLabels.attr("font-weight", options.dataPoint.fontWeight)
 
 
     // vertical axes and ticks
@@ -221,10 +237,10 @@ function drawGroupedColumnChart(options, dataset) {
     // create group inner x-scale    
     var xInnerScale = d3.scaleBand()
         .domain(dataset.labels.map(function (d) { return d.label }))
-        .rangeRound([0, xScale.bandwidth()]);        
+        .rangeRound([0, xScale.bandwidth()]);
     if (isNumber(options.xInnerScale.paddingInner))
         xInnerScale.paddingInner(options.xInnerScale.paddingInner);
-    
+
 
     // create y-scale
     var yScaleMaxNumber = d3.max(dataset.data, function (d) {
@@ -282,11 +298,26 @@ function drawGroupedColumnChart(options, dataset) {
         .enter()
         .append("text")
         .text(function (d) { return d.value })
-        .attr("x", function (d) { return xInnerScale(d.label) + (xInnerScale.bandwidth() / 2) - 5; })
-        .attr("y", function (d) { return yScale(d.value) - 4; })
-        .attr('fill', function (d) { return 'black' })
-        .attr("font-family", "sans-serif")
-        .attr("font-size", "11px");
+        .attr("x", function (d) { 
+            var textLength = d.label.length * 2;            
+            return xInnerScale(d.label) + (xInnerScale.bandwidth() / 2) - textLength; 
+        })
+        .attr("y", function (d) { return yScale(d.value) - 4; });        
+    // setting font properties
+    if (isSet(options.dataPoint.fontFamily))
+        groupTexts.attr("font-family", options.dataPoint.fontFamily)
+    else
+        groupTexts.attr("font-family", "sans-serif");
+    if (isNumber(options.dataPoint.fontSize))
+        groupTexts.attr("font-size", options.dataPoint.fontSize);
+    else
+        groupTexts.attr("font-size", 12);
+    if (isSet(options.dataPoint.color))
+        groupTexts.attr("fill", options.dataPoint.color);
+    else
+        groupTexts.attr("fill", 'black');
+    if (isSet(options.dataPoint.fontWeight) && options.dataPoint.fontWeight.length > 0)
+        groupTexts.attr("font-weight", options.dataPoint.fontWeight)
 
 
 
@@ -379,19 +410,33 @@ function drawStackedColumnChart(options, dataset) {
         var item = {};
         item.__total = 0;
         item.__label = dataItem.label;
+        item.values = [];
 
         groupLabels.push(dataItem.label);
 
-
+        var yValueForGroup = 0;
         for (var valueIndex = 0; valueIndex < dataItem.values.length; valueIndex++) {
-            item[dataItem.values[valueIndex].label] = dataItem.values[valueIndex].value;
+            item.values.push({
+                value: dataItem.values[valueIndex].value,
+                yValue: yValueForGroup,
+                label: dataItem.values[valueIndex].label,
+                groupLabel: dataItem.label
+            })
+            yValueForGroup += dataItem.values[valueIndex].value;
 
             // accumulate total 
-            if (isNumber(dataItem.values[valueIndex].value))
+            if (isNumber(dataItem.values[valueIndex].value)) {
                 item.__total += dataItem.values[valueIndex].value;
+
+                if (item.__total.toString().indexOf('.') !== -1) {
+                    item.__total = +item.__total.toFixed(1);
+                }
+            }
         }
         shapedData.push(item);
     }
+
+
 
     var labels = dataset.labels.map(function (d) { return d.label });
 
@@ -412,7 +457,7 @@ function drawStackedColumnChart(options, dataset) {
         yScaleMaxNumber = getWholeMaxNumber(yScaleMaxNumber);
     var yScale = d3.scaleLinear()
         .domain([0, yScaleMaxNumber])
-        .rangeRound([height, 0])
+        .range([height, 0])
         .nice();
 
     // creating color scale if needed
@@ -438,36 +483,55 @@ function drawStackedColumnChart(options, dataset) {
 
     var gGroup = g.append("g")
         .selectAll("g")
-        .data(d3.stack().keys(labels)(shapedData))
-        .enter()
-        .append("g")
-        .attr("fill", function (d) { return colorScale(d.key); });
-
-    gGroup.selectAll("rect")
-        .data(function (d) { return d; })
-        .enter()
-        .append("rect")
-        .attr("x", function (d) { return xScale(d.data.__label); })
-        .attr("y", function (d) { return yScale(d[1]); })
-        .attr("height", function (d) { return yScale(d[0]) - yScale(d[1]); })
-        .attr("width", xScale.bandwidth());
-
-    var gGroupDataLabels = g.append('g')
-        .selectAll("g")
-        .data(d3.stack().keys(labels)(shapedData))
+        .data(shapedData)
         .enter()
         .append("g");
 
-    gGroupDataLabels.selectAll("text")
-        .data(function (d) { return d; })
+
+    gGroup.selectAll("rect")
+        .data(function (d) { return d.values; })
+        .enter()
+        .append("rect")
+        .attr("x", function (d) { return xScale(d.groupLabel); })
+        .attr("y", function (d) { return yScale(d.value + d.yValue); })
+        .attr("height", function (d) { return height - yScale(d.value); })
+        .attr("fill", function (d) { return colorScale(d.label); })
+        .attr("width", xScale.bandwidth());
+
+
+    var texts = gGroup.selectAll(".d3-stack-label")
+        .data(function (d) { return d.values; })
         .enter()
         .append("text")
-        .text(function (d) { return d[1] - d[0] })
-        .attr("x", function (d) { return xScale(d.data.__label) + (xScale.bandwidth() / 2); })
-        .attr("y", function (d) { return yScale(d[1]) + 16; })
-        .attr('fill', function (d) { return 'black' })
-        .attr("font-family", "sans-serif")
-        .attr("font-size", "12px");
+        .text(function (d) {
+            var heightOfRect = height - yScale(d.value);
+            if (heightOfRect >= 15)
+                return d.value;
+            else
+                return "";
+        })
+        .attr('class', 'd3-stack-label')
+        .attr("x", function (d) { 
+            var textLength = d.groupLabel.length * 2;
+            return xScale(d.groupLabel) + (xScale.bandwidth() / 2) - textLength;
+        })
+        .attr("y", function (d) { return yScale(d.value + d.yValue) + 13 });
+    // setting font properties
+    if (isSet(options.dataPoint.fontFamily))
+        texts.attr("font-family", options.dataPoint.fontFamily)
+    else
+        texts.attr("font-family", "sans-serif");
+    if (isNumber(options.dataPoint.fontSize))
+        texts.attr("font-size", options.dataPoint.fontSize);
+    else
+        texts.attr("font-size", 12);
+    if (isSet(options.dataPoint.color))
+        texts.attr("fill", options.dataPoint.color);
+    else
+        texts.attr("fill", 'black');
+    if (isSet(options.dataPoint.fontWeight) && options.dataPoint.fontWeight.length > 0)
+        texts.attr("font-weight", options.dataPoint.fontWeight)
+
 
 
 
@@ -752,9 +816,10 @@ function areOptionsValid(options) {
 
     // create empty objects to avoit errors when accessing object fields
     options.xScale = options.xScale || {};
-    options.xInnerScale = options.xInnerScale || {};    
+    options.xInnerScale = options.xInnerScale || {};
     options.xAxis = options.xAxis || {};
     options.yAxis = options.yAxis || {};
+    options.dataPoint = options.dataPoint || {};
 
     // element id
     if (!isSet(options.elementId)) {
@@ -826,6 +891,9 @@ function getWholeMaxNumber(num) {
             break;
     }
 
-    return (Math.floor(num / wholeNum) * wholeNum) + wholeNum;
+    if (num < wholeNum)
+        return (Math.floor(num / wholeNum) * wholeNum) + wholeNum;
+    else
+        return num;
 
 }
