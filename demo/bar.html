@@ -71,7 +71,8 @@ drawBarChart(bar_example_1, data_1);
     <script>
         var bar_example_1 = {
             elementId: 'bar-example-1',
-            width: 600,
+            backgroundColor: '#ccc',
+            width: 600,            
             height: 200,
             margin: {
                 left: 50,
@@ -86,6 +87,16 @@ drawBarChart(bar_example_1, data_1);
                 paddingInner: 0.08, // vertical inner padding for columns
                 paddingOuter: .3, // vertical outer padding for columns                
             },
+            dataPoint: {
+                fontFamily: 'Verdana',
+                fontSize: 12,
+                color: '#fff',
+                fontWeight: ''
+            },
+            grid: {
+                stroke: '#e2e2e2',
+                className: 'grid-line-class-name'
+            }
         };
         var data_1 = [
             { value: 9, label: 'Sedan', color: '#ce3a2f' },

@@ -52,18 +52,47 @@ function drawColumnChart(options, dataset) {
         .range(dataset.map(function (d) { return d.color }));
 
 
+    // making background if needed
+    if (isSet(options.backgroundColor) && options.backgroundColor.length > 0) {
+        svg.append('rect')
+            .attr("x", 0)
+            .attr("y", 0)
+            .attr("width", options.width)
+            .attr("height", options.height)
+            .attr("fill", options.backgroundColor);
+    }
 
-    // making horizontal grid lines
-    var yGridLines = function () {
-        if (isNumber(options.yAxis.ticks))
-            return d3.axisLeft(yScale).ticks(options.yAxis.ticks);
-        else
-            return d3.axisLeft(yScale);
-    };
-    svg.append("g")
+
+    // OLD WAY of making horizontal grid lines
+    // var yGridLines = function () {
+    //     if (isNumber(options.yAxis.ticks))
+    //         return d3.axisLeft(yScale).ticks(options.yAxis.ticks);
+    //     else
+    //         return d3.axisLeft(yScale);
+    // };
+    // svg.append("g")
+    //     .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+    //     .attr("class", "d3-grid")
+    //     .call(yGridLines().tickSize(-width).tickFormat(""));
+    gridLineTicks = isNumber(options.yAxis.ticks)
+        ? yScale.ticks(options.yAxis.ticks)
+        : yScale.ticks();
+    var gGrid = svg.append('g')
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-        .attr("class", "d3-grid")
-        .call(yGridLines().tickSize(-width).tickFormat(""));
+        .attr('class', function () {
+            return isSet(options.grid.className) ? options.grid.className : "";
+        });
+    var gGridLines = gGrid.selectAll('line')
+        .data(gridLineTicks)
+        .enter()
+        .append("line")
+        .attr('x1', 0)
+        .attr('x2', width)
+        .attr('y1', function (d) { return yScale(d); })
+        .attr('y2', function (d) { return yScale(d); })
+        .attr('stroke', function () {
+            return isSet(options.grid.stroke) ? options.grid.stroke : '#e2e2e2';
+        });
 
 
     // this g contains chart elements
@@ -89,27 +118,27 @@ function drawColumnChart(options, dataset) {
         .append("text")
         .text(function (d) { return d.value; })
         .attr("text-anchor", "middle")
-        .attr("x", function (d) { 
+        .attr("x", function (d) {
             var textLength = d.label.length * 2;
-            return xScale(d.label) + (xScale.bandwidth() / 2) - textLength; 
+            return xScale(d.label) + (xScale.bandwidth() / 2) - textLength;
         })
-        .attr("y", function (d) { return yScale(d.value) - 4; });
-        
-    // setting font properties
-    if (isSet(options.dataPoint.fontFamily))
-        dataLabels.attr("font-family", options.dataPoint.fontFamily)
-    else
-        dataLabels.attr("font-family", "sans-serif");
-    if (isNumber(options.dataPoint.fontSize))
-        dataLabels.attr("font-size", options.dataPoint.fontSize);
-    else
-        dataLabels.attr("font-size", 12);
-    if (isSet(options.dataPoint.color))
-        dataLabels.attr("fill", options.dataPoint.color);
-    else
-        dataLabels.attr("fill", 'black');
-    if (isSet(options.dataPoint.fontWeight) && options.dataPoint.fontWeight.length > 0)
-        dataLabels.attr("font-weight", options.dataPoint.fontWeight)
+        .attr("y", function (d) { return yScale(d.value) - 4; })
+        .attr('font-family', function() {
+            return isSet(options.dataPoint.fontFamily) ? options.dataPoint.fontFamily : 'sans-serif';
+        })
+        .attr('font-size', function() {
+            return isSet(options.dataPoint.fontSize) ? options.dataPoint.fontSize : 12;
+        })
+        .attr('fill', function() {
+            return isSet(options.dataPoint.color) ? options.dataPoint.color : 'black';
+        })
+        .attr('font-weight', function() {
+            return (isSet(options.dataPoint.fontWeight) && options.dataPoint.fontWeight.length > 0)
+                ? options.dataPoint.fontWeight
+                : '';
+        });
+
+    
 
 
     // vertical axes and ticks
@@ -259,17 +288,47 @@ function drawGroupedColumnChart(options, dataset) {
         .range(dataset.labels.map(function (d) { return d.color }));
 
 
-    // making horizontal grid lines
-    var yGridLines = function () {
-        if (isNumber(options.yAxis.ticks))
-            return d3.axisLeft(yScale).ticks(options.yAxis.ticks);
-        else
-            return d3.axisLeft(yScale);
-    };
-    svg.append("g")
+    // making background if needed
+    if (isSet(options.backgroundColor) && options.backgroundColor.length > 0) {
+        svg.append('rect')
+            .attr("x", 0)
+            .attr("y", 0)
+            .attr("width", options.width)
+            .attr("height", options.height)
+            .attr("fill", options.backgroundColor);
+    }
+
+
+    // OLD WAY of making horizontal grid lines
+    // var yGridLines = function () {
+    //     if (isNumber(options.yAxis.ticks))
+    //         return d3.axisLeft(yScale).ticks(options.yAxis.ticks);
+    //     else
+    //         return d3.axisLeft(yScale);
+    // };
+    // svg.append("g")
+    //     .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+    //     .attr("class", "d3-grid")
+    //     .call(yGridLines().tickSize(-width).tickFormat(""));
+    gridLineTicks = isNumber(options.yAxis.ticks)
+        ? yScale.ticks(options.yAxis.ticks)
+        : yScale.ticks();
+    var gGrid = svg.append('g')
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-        .attr("class", "d3-grid")
-        .call(yGridLines().tickSize(-width).tickFormat(""));
+        .attr('class', function () {
+            return isSet(options.grid.className) ? options.grid.className : "";
+        });
+    var gGridLines = gGrid.selectAll('line')
+        .data(gridLineTicks)
+        .enter()
+        .append("line")
+        .attr('x1', 0)
+        .attr('x2', width)
+        .attr('y1', function (d) { return yScale(d); })
+        .attr('y2', function (d) { return yScale(d); })
+        .attr('stroke', function () {
+            return isSet(options.grid.stroke) ? options.grid.stroke : '#e2e2e2';
+        });
 
     // this g contains chart elements
     var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -298,26 +357,25 @@ function drawGroupedColumnChart(options, dataset) {
         .enter()
         .append("text")
         .text(function (d) { return d.value })
-        .attr("x", function (d) { 
-            var textLength = d.label.length * 2;            
-            return xInnerScale(d.label) + (xInnerScale.bandwidth() / 2) - textLength; 
+        .attr("x", function (d) {
+            var textLength = d.label.length * 2;
+            return xInnerScale(d.label) + (xInnerScale.bandwidth() / 2) - textLength;
         })
-        .attr("y", function (d) { return yScale(d.value) - 4; });        
-    // setting font properties
-    if (isSet(options.dataPoint.fontFamily))
-        groupTexts.attr("font-family", options.dataPoint.fontFamily)
-    else
-        groupTexts.attr("font-family", "sans-serif");
-    if (isNumber(options.dataPoint.fontSize))
-        groupTexts.attr("font-size", options.dataPoint.fontSize);
-    else
-        groupTexts.attr("font-size", 12);
-    if (isSet(options.dataPoint.color))
-        groupTexts.attr("fill", options.dataPoint.color);
-    else
-        groupTexts.attr("fill", 'black');
-    if (isSet(options.dataPoint.fontWeight) && options.dataPoint.fontWeight.length > 0)
-        groupTexts.attr("font-weight", options.dataPoint.fontWeight)
+        .attr("y", function (d) { return yScale(d.value) - 4; })
+        .attr('font-family', function() {
+            return isSet(options.dataPoint.fontFamily) ? options.dataPoint.fontFamily : 'sans-serif';
+        })
+        .attr('font-size', function() {
+            return isSet(options.dataPoint.fontSize) ? options.dataPoint.fontSize : 12;
+        })
+        .attr('fill', function() {
+            return isSet(options.dataPoint.color) ? options.dataPoint.color : 'black';
+        })
+        .attr('font-weight', function() {
+            return (isSet(options.dataPoint.fontWeight) && options.dataPoint.fontWeight.length > 0)
+                ? options.dataPoint.fontWeight
+                : '';
+        }); 
 
 
 
@@ -466,17 +524,50 @@ function drawStackedColumnChart(options, dataset) {
         .range(dataset.labels.map(function (d) { return d.color }));
 
 
-    // making horizontal grid lines
-    var yGridLines = function () {
-        if (isNumber(options.yAxis.ticks))
-            return d3.axisLeft(yScale).ticks(options.yAxis.ticks);
-        else
-            return d3.axisLeft(yScale);
-    };
-    svg.append("g")
+    // making background if needed
+    if (isSet(options.backgroundColor) && options.backgroundColor.length > 0) {
+        svg.append('rect')
+            .attr("x", 0)
+            .attr("y", 0)
+            .attr("width", options.width)
+            .attr("height", options.height)
+            .attr("fill", options.backgroundColor);
+    }
+
+
+    // OLD WAY OF making horizontal grid lines
+    // var yGridLines = function () {
+    //     if (isNumber(options.yAxis.ticks))
+    //         return d3.axisLeft(yScale).ticks(options.yAxis.ticks);
+    //     else
+    //         return d3.axisLeft(yScale);
+    // };
+    // svg.append("g")
+    //     .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+    //     .attr("class", "d3-grid")
+    //     .call(yGridLines().tickSize(-width).tickFormat(""));
+
+    gridLineTicks = isNumber(options.yAxis.ticks)
+        ? yScale.ticks(options.yAxis.ticks)
+        : yScale.ticks();
+    var gGrid = svg.append('g')
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-        .attr("class", "d3-grid")
-        .call(yGridLines().tickSize(-width).tickFormat(""));
+        .attr('class', function () {
+            return isSet(options.grid.className) ? options.grid.className : "";
+        });
+    var gGridLines = gGrid.selectAll('line')
+        .data(gridLineTicks)
+        .enter()
+        .append("line")
+        .attr('x1', 0)
+        .attr('x2', width)
+        .attr('y1', function (d) { return yScale(d); })
+        .attr('y2', function (d) { return yScale(d); })
+        .attr('stroke', function () {
+            return isSet(options.grid.stroke) ? options.grid.stroke : '#e2e2e2';
+        });
+
+
 
     // this g contains chart elements
     var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -505,30 +596,33 @@ function drawStackedColumnChart(options, dataset) {
         .append("text")
         .text(function (d) {
             var heightOfRect = height - yScale(d.value);
-            if (heightOfRect >= 15)
-                return d.value;
-            else
-                return "";
+            return heightOfRect >= 15 ? d.value : "";
         })
         .attr('class', 'd3-stack-label')
-        .attr("x", function (d) { 
+        .attr("x", function (d) {
             var textLength = d.groupLabel.length * 2;
             return xScale(d.groupLabel) + (xScale.bandwidth() / 2) - textLength;
         })
-        .attr("y", function (d) { return yScale(d.value + d.yValue) + 13 });
-    // setting font properties
-    if (isSet(options.dataPoint.fontFamily))
-        texts.attr("font-family", options.dataPoint.fontFamily)
-    else
-        texts.attr("font-family", "sans-serif");
-    if (isNumber(options.dataPoint.fontSize))
-        texts.attr("font-size", options.dataPoint.fontSize);
-    else
-        texts.attr("font-size", 12);
-    if (isSet(options.dataPoint.color))
-        texts.attr("fill", options.dataPoint.color);
-    else
-        texts.attr("fill", 'black');
+        .attr("y", function (d) { return yScale(d.value + d.yValue) + 13 })
+        .attr('font-family', function() {
+            return isSet(options.dataPoint.fontFamily) ? options.dataPoint.fontFamily : 'sans-serif';
+        })
+        .attr('font-size', function() {
+            return isSet(options.dataPoint.fontSize) ? options.dataPoint.fontSize : 12;
+        })
+        .attr('fill', function() {
+            return isSet(options.dataPoint.color) ? options.dataPoint.color : 'black';
+        })
+        .attr('font-weight', function() {
+            return (isSet(options.dataPoint.fontWeight) && options.dataPoint.fontWeight.length > 0)
+                ? options.dataPoint.fontWeight
+                : '';
+        });
+
+    
+    
+    
+    
     if (isSet(options.dataPoint.fontWeight) && options.dataPoint.fontWeight.length > 0)
         texts.attr("font-weight", options.dataPoint.fontWeight)
 
@@ -633,6 +727,17 @@ function drawBarChart(options, dataset) {
     var colorScale = d3.scaleOrdinal()
         .domain(dataset.map(function (d) { return d.label }))
         .range(dataset.map(function (d) { return d.color }));
+
+
+     // making background if needed
+    if (isSet(options.backgroundColor) && options.backgroundColor.length > 0) {
+        svg.append('rect')
+            .attr("x", 0)
+            .attr("y", 0)
+            .attr("width", options.width)
+            .attr("height", options.height)
+            .attr("fill", options.backgroundColor);
+    }
 
 
     // making vertical grid lines
@@ -820,6 +925,7 @@ function areOptionsValid(options) {
     options.xAxis = options.xAxis || {};
     options.yAxis = options.yAxis || {};
     options.dataPoint = options.dataPoint || {};
+    options.grid = options.grid || {};
 
     // element id
     if (!isSet(options.elementId)) {

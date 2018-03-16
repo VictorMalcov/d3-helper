@@ -37,15 +37,18 @@
 var column_example_1 = {
     elementId: 'column-example-1',
     width: 400,
-    height: 300,
+    height: 300,            
     margin: {
-        bottom: 30
+        bottom: 30,
     },
     dataPoint: {
         fontFamily: 'Verdana',
-        fontSize: 11,
+        fontSize: 12,
         color: '#333',
         fontWeight: 'bold'
+    },
+    grid: {
+        stroke: '#ccc'                
     }
 };
 var data_1 = [
@@ -105,19 +108,30 @@ var grouped_column_example_1 = {
     elementId: 'grouped-column-example-1',
     width: 600,
     height: 400,
+    backgroundColor: '#fff',
     margin: {
-        top: 50,
-        bottom: 70
+        top: 10,
+        bottom: 50
     },
     xScale: {
-        paddingInner: 0.05, // horizontal inner padding for columns
-        paddingOuter: .09, // horizontal outer padding for columns
+        paddingInner: 0.1, // horizontal inner padding for columns
+        paddingOuter: .1, // horizontal outer padding for columns
+    },
+    xInnerScale: {
+        paddingInner: 0.04
+    },
+    yAxis: {
+        roundToMax: true, // setting this to true will make x-axis to be max whole number greater that max number from dataset
     },
     dataPoint: {
         fontFamily: 'Verdana',
         fontSize: 13,
         color: '#d142f4',
         fontWeight: 'bold'
+    },
+    grid: {
+        stroke: '#e2e2e2',
+        className: 'grid-line-class-name'
     }
 };
 
@@ -156,12 +170,13 @@ var stacked_column_example_1 = {
     elementId: 'stacked-column-example-1',
     width: 600,
     height: 400,
+    backgroundColor: '#fff',
     margin: {
         top: 10,
         bottom: 50
     },
     xScale: {
-        paddingInner: 0.05, // horizontal inner padding for columns
+        paddingInner: .18, // horizontal inner padding for columns
         paddingOuter: .09, // horizontal outer padding for columns                
     },
     xAxis: {
@@ -169,12 +184,17 @@ var stacked_column_example_1 = {
     },
     yAxis: {
         roundToMax: true, // setting this to true will make x-axis to be max whole number greater that max number from dataset
+        ticks: 5
     },
     dataPoint: {
         fontFamily: 'Verdana',
         fontSize: 12,
-        color: '#efff49',
-        fontWeight: ''
+        color: '#fff',
+        fontWeight: 'bold'
+    },
+    grid: {
+        stroke: '#e2e2e2',
+        className: 'grid-line-class-name'
     }
 };
 
@@ -216,21 +236,24 @@ drawStackedColumnChart(stacked_column_example_1, stacked_data_1);
         var column_example_1 = {
             elementId: 'column-example-1',
             width: 400,
-            height: 300,
+            height: 300,            
             margin: {
-                bottom: 30
+                bottom: 30,
             },
             dataPoint: {
                 fontFamily: 'Verdana',
-                fontSize: 11,
+                fontSize: 12,
                 color: '#333',
                 fontWeight: 'bold'
+            },
+            grid: {
+                stroke: '#ccc'                
             }
         };
         var data_1 = [
-            { value: 50000, label: 'Sedan', color: '#ce3a2f' },
-            { value: 110000, label: 'SUV', color: '#5ac450' },
-            { value: 220000, label: 'Truck', color: '#335bcc' },
+            { value: 5, label: 'Sedan', color: '#ce3a2f' },
+            { value: 11, label: 'SUV', color: '#5ac450' },
+            { value: 22, label: 'Truck', color: '#335bcc' },
         ]
         drawColumnChart(column_example_1, data_1);
 
@@ -272,6 +295,7 @@ drawStackedColumnChart(stacked_column_example_1, stacked_data_1);
             elementId: 'grouped-column-example-1',
             width: 600,
             height: 400,
+            backgroundColor: '#fff',
             margin: {
                 top: 10,
                 bottom: 50
@@ -291,6 +315,10 @@ drawStackedColumnChart(stacked_column_example_1, stacked_data_1);
                 fontSize: 13,
                 color: '#d142f4',
                 fontWeight: 'bold'
+            },
+            grid: {
+                stroke: '#e2e2e2',
+                className: 'grid-line-class-name'
             }
         };
 
@@ -329,12 +357,13 @@ drawStackedColumnChart(stacked_column_example_1, stacked_data_1);
             elementId: 'stacked-column-example-1',
             width: 600,
             height: 400,
+            backgroundColor: '#fff',
             margin: {
                 top: 10,
                 bottom: 50
             },
             xScale: {
-                paddingInner: 0.05, // horizontal inner padding for columns
+                paddingInner: .18, // horizontal inner padding for columns
                 paddingOuter: .09, // horizontal outer padding for columns                
             },
             xAxis: {
@@ -342,12 +371,17 @@ drawStackedColumnChart(stacked_column_example_1, stacked_data_1);
             },
             yAxis: {
                 roundToMax: true, // setting this to true will make x-axis to be max whole number greater that max number from dataset
+                ticks: 5
             },
             dataPoint: {
                 fontFamily: 'Verdana',
                 fontSize: 12,
-                color: '#efff49',
-                fontWeight: ''
+                color: '#fff',
+                fontWeight: 'bold'
+            },
+            grid: {
+                stroke: '#e2e2e2',
+                className: 'grid-line-class-name'
             }
         };
 
@@ -362,8 +396,8 @@ drawStackedColumnChart(stacked_column_example_1, stacked_data_1);
                     label: 'Honda',
                     values: [
                         { value: 11, label: 'Sedan' },
-                        { value: 15, label: 'SUV' },
-                        { value: 30, label: 'Truck' }
+                        { value: 3, label: 'SUV' },
+                        { value: 1, label: 'Truck' }
                     ]
                 },
                 {
@@ -371,7 +405,7 @@ drawStackedColumnChart(stacked_column_example_1, stacked_data_1);
                     values: [
                         { value: 20, label: 'Sedan' },
                         { value: 30, label: 'SUV' },
-                        { value: 47, label: 'Truck' }
+                        { value: 87, label: 'Truck' }
                     ]
                 }
             ]
