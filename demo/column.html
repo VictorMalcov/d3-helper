@@ -71,10 +71,10 @@
                         width: 400,
                         height: 300,
                         margin: {
-                            bottom: 50
+                            bottom: 70
                         },
                         xLabel: 'Cars sold in Washington D.C.',
-                        labelsBottom: true, // show column labels under chart 
+                        legends: 'horizontal',
                         xScale: {
                             paddingInner: 0.05, // horizontal inner padding for columns
                             paddingOuter: .3, // horizontal outer padding for columns                
@@ -84,7 +84,7 @@
                         },
                         yAxis: {
                             roundToMax: true, // setting this to true will make x-axis to be max whole number greater that max number from dataset
-                            ticks: 4 // number of ticks for left axis                
+                            ticks: 5 // number of ticks for left axis                
                         }
                     };
 
@@ -110,9 +110,10 @@
                         width: 600,
                         height: 400,                        
                         backgroundColor: '#fff',
+                        legends: 'vertical',
                         margin: {
                             top: 10,
-                            bottom: 50
+                            bottom: 70
                         },
                         xScale: {
                             paddingInner: 0.1, // horizontal inner padding for columns
@@ -171,7 +172,8 @@
                         elementId: 'stacked-column-example-1',
                         width: 600,
                         height: 400,
-                        backgroundColor: '#fff',
+                        backgroundColor: '#fff',                        
+                        legends: 'horizontal',
                         margin: {
                             top: 10,
                             bottom: 50
@@ -179,10 +181,7 @@
                         xScale: {
                             paddingInner: .18, // horizontal inner padding for columns
                             paddingOuter: .09, // horizontal outer padding for columns                
-                        },
-                        xAxis: {
-                            roundToMax: true, // setting this to true will make x-axis to be max whole number greater that max number from dataset
-                        },
+                        },                        
                         yAxis: {
                             roundToMax: false, // setting this to true will make x-axis to be max whole number greater that max number from dataset
                             ticks: 5

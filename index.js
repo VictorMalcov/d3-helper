@@ -83,10 +83,14 @@ function drawColumnChart(options, dataset) {
     drawHorizontalLabel(svg, options, margin, width, height);
 
 
-    // horizontal legends
-    if(options.labelsBottom) {
+	// data legends
+    if (options.legends === 'horizontal') {
         var labelsArr = dataset.map(function (d) { return d.label });
-        drawDataLegends(svg, options, labelsArr, margin, width, height, colorScale);
+        drawHorizontalDataLegends(svg, options, labelsArr, margin, colorScale);
+    }
+    else if (options.legends === 'vertical') {
+        var labelsArr = dataset.map(function (d) { return d.label });        
+        drawVerticalDataLegends(svg, options, labelsArr, margin, colorScale);
     }
 
 }
@@ -191,14 +195,21 @@ function drawGroupedColumnChart(options, dataset) {
             return xInnerScale(d.label) + (xInnerScale.bandwidth() / 2) - textLength;
         })
         .attr("y", function (d) { return yScale(d.value) - 4; });
-    applyDataLabelStyles(dataLabels, options);      
-        
+    applyDataLabelStyles(dataLabels, options);
+
     drawVerticalAxis(g, yScale, options)
     drawHorizontalAxis(g, xScale, options, height);
 
-    // horizontal legends        
-    var labelsArr = dataset.labels.map(function (d) { return d.label });
-    drawDataLegends(svg, options, labelsArr, margin, width, height, colorScale);
+
+    // data legends
+    if (options.legends === 'horizontal' || !options.legends) {
+        var labelsArr = dataset.labels.map(function (d) { return d.label });
+        drawHorizontalDataLegends(svg, options, labelsArr, margin, colorScale);
+    }
+    else if (options.legends === 'vertical') {
+        var labelsArr = dataset.labels.map(function (d) { return d.label });
+        drawVerticalDataLegends(svg, options, labelsArr, margin, colorScale);
+    }
 }
 
 function drawStackedColumnChart(options, dataset) {
@@ -330,9 +341,17 @@ function drawStackedColumnChart(options, dataset) {
     drawVerticalAxis(g, yScale, options)
     drawHorizontalAxis(g, xScale, options, height);
 
-    // horizontal legends        
-    var labelsArr = dataset.labels.map(function (d) { return d.label });
-    drawDataLegends(svg, options, labelsArr, margin, width, height, colorScale);
+
+    // data legends
+    if (options.legends === 'horizontal' || !options.legends) {
+        var labelsArr = dataset.labels.map(function (d) { return d.label });
+        drawHorizontalDataLegends(svg, options, labelsArr, margin, colorScale);
+    }
+    else if (options.legends === 'vertical') {
+        var labelsArr = dataset.labels.map(function (d) { return d.label });
+        drawVerticalDataLegends(svg, options, labelsArr, margin, colorScale);
+    }
+    
 }
 
 function drawBarChart(options, dataset) {
@@ -640,40 +659,73 @@ function drawHorizontalLabel(svg, options, margin, width, height) {
     }
 }
 
-function drawDataLegends(svg, options, labelsArr, margin, width, height, colorScale) {
+function drawHorizontalDataLegends(svg, options, labelsArr, margin, colorScale) {
     // data legends will be drawn at the bottom of SVG
-    
-	var legendsTextScale = d3.scaleOrdinal()
-		.range(labelsArr)
-		.domain(d3.range(0, labelsArr.length));
 
-	var legendsBandScale = d3.scaleBand()
-		.domain(labelsArr)
-		.rangeRound([0, width]);
+    var legendsTextScale = d3.scaleOrdinal()
+        .range(labelsArr)
+        .domain(d3.range(0, labelsArr.length));
+
+    var legendsBandScale = d3.scaleBand()
+        .domain(labelsArr)
+        .rangeRound([0, calculateWidth(options, margin)]);
 
 
-	var gLegendY = options.height - 15;	
+    var gLegendY = options.height - 15;
 
-	var gLegends = svg.append('g')
-		.attr("transform", "translate(" + margin.left + "," + gLegendY + ")");
+    var gLegends = svg.append('g')
+        .attr("transform", "translate(" + margin.left + "," + gLegendY + ")");
 
-	var gLegendsRects = gLegends.selectAll("rect")
-		.data(labelsArr)
-		.enter()
-		.append('g')
-		.attr('class', 'd3-legends')
-		.attr("transform", function (d) { return "translate(" + legendsBandScale(d) + "," + 0 + ")"; });
+    var gLegendsRects = gLegends.selectAll("rect")
+        .data(labelsArr)
+        .enter()
+        .append('g')
+        .attr('class', 'd3-legends')
+        .attr("transform", function (d) { return "translate(" + legendsBandScale(d) + "," + 0 + ")"; });
 
-	gLegendsRects.append('text')
-		.text(function (d, i) { return legendsTextScale(i) })
-		.attr('x', 12)
-		.attr('y', 9);
-	gLegendsRects.append('rect')
-		.attr('x', 0)
-		.attr('y', 0)
-		.attr('width', 10)
-		.attr('height', 10)
-		.attr('fill', function (d, i) { return colorScale(d); });
+    gLegendsRects.append('text')
+        .text(function (d, i) { return legendsTextScale(i) })
+        .attr('x', 12)
+        .attr('y', 9);
+    gLegendsRects.append('rect')
+        .attr('x', 0)
+        .attr('y', 0)
+        .attr('width', 10)
+        .attr('height', 10)
+        .attr('fill', function (d, i) { return colorScale(d); });
+}
+
+function drawVerticalDataLegends(svg, options, labelsArr, margin, colorScale) {
+    var legendsTextScale = d3.scaleOrdinal()
+        .range(labelsArr)
+        .domain(d3.range(0, labelsArr.length));
+
+    var legendsBandScale = d3.scaleBand()
+        .domain(labelsArr)
+        .rangeRound([0, labelsArr.length * 15]);
+
+    var y = options.height - (labelsArr.length * 15);
+    var gLegends = svg.append('g')
+        .attr("transform", "translate(" + margin.left + "," + y + ")");
+
+    var gLegendsItem = gLegends.selectAll("g")
+        .data(labelsArr)
+        .enter()
+        .append('g')
+        .attr('class', 'd3-legends')
+        .attr("transform", function (d, i) { return "translate(0, " + legendsBandScale(d) + ")"; });
+
+    gLegendsItem.append('rect')
+        .attr('x', 0)
+        .attr('y', 0)
+        .attr('width', 10)
+        .attr('height', 10)
+        .attr('fill', function (d, i) { return colorScale(d); });
+    gLegendsItem.append('text')
+        .text(function (d, i) { return legendsTextScale(i) })
+        .attr('x', 15)
+        .attr('y', 10)
+        .attr('font-size', 12);
 }
 
 function applyDataLabelStyles(dataLabels, options) {
