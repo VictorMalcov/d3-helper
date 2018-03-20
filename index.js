@@ -47,7 +47,7 @@ function drawColumnChart(options, dataset) {
 
 
     drawBackground(svg, options);
-    drawGridLines(svg, options, margin, width, yScale);
+    drawHorizontalGridLines(svg, options, margin, width, yScale);
 
     // this g contains chart elements
     var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -83,13 +83,13 @@ function drawColumnChart(options, dataset) {
     drawHorizontalLabel(svg, options, margin, width, height);
 
 
-	// data legends
+    // data legends
     if (options.legends === 'horizontal') {
         var labelsArr = dataset.map(function (d) { return d.label });
         drawHorizontalDataLegends(svg, options, labelsArr, margin, colorScale);
     }
     else if (options.legends === 'vertical') {
-        var labelsArr = dataset.map(function (d) { return d.label });        
+        var labelsArr = dataset.map(function (d) { return d.label });
         drawVerticalDataLegends(svg, options, labelsArr, margin, colorScale);
     }
 
@@ -161,7 +161,7 @@ function drawGroupedColumnChart(options, dataset) {
 
 
     drawBackground(svg, options);
-    drawGridLines(svg, options, margin, width, yScale);
+    drawHorizontalGridLines(svg, options, margin, width, yScale);
 
     // this g contains chart elements
     var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -298,7 +298,7 @@ function drawStackedColumnChart(options, dataset) {
 
 
     drawBackground(svg, options);
-    drawGridLines(svg, options, margin, width, yScale);
+    drawHorizontalGridLines(svg, options, margin, width, yScale);
 
     // this g contains chart elements
     var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -351,7 +351,7 @@ function drawStackedColumnChart(options, dataset) {
         var labelsArr = dataset.labels.map(function (d) { return d.label });
         drawVerticalDataLegends(svg, options, labelsArr, margin, colorScale);
     }
-    
+
 }
 
 function drawBarChart(options, dataset) {
@@ -368,17 +368,11 @@ function drawBarChart(options, dataset) {
         .attr("height", options.height);
 
     // set margins
-    var margin = { top: 20, right: 15, bottom: 25, left: 25 }; // default margins
-    if (options.margin) {
-        margin.top = isNumber(options.margin.top) ? options.margin.top : margin.top;
-        margin.right = isNumber(options.margin.right) ? options.margin.right : margin.right;
-        margin.bottom = isNumber(options.margin.bottom) ? options.margin.bottom : margin.bottom;
-        margin.left = isNumber(options.margin.left) ? options.margin.left : margin.left;
-    }
+    var margin = createMargin(options);
 
     // width and height of element that contains chart bars
-    var width = options.width - margin.left - margin.right;
-    var height = options.height - margin.top - margin.bottom;
+    var width = calculateWidth(options, margin);
+    var height = calculateHeight(options, margin);
 
     // creating x-scale
     var xScaleMaxNumber = d3.max(dataset, function (d) { return d.value }); // get the max number from dataset
@@ -405,41 +399,17 @@ function drawBarChart(options, dataset) {
         .domain(dataset.map(function (d) { return d.label }))
         .range(dataset.map(function (d) { return d.color }));
 
-
-    // making background if needed
-    if (isSet(options.backgroundColor) && options.backgroundColor.length > 0) {
-        svg.append('rect')
-            .attr("x", 0)
-            .attr("y", 0)
-            .attr("width", options.width)
-            .attr("height", options.height)
-            .attr("fill", options.backgroundColor);
-    }
-
-
-    // making vertical grid lines
-    var xGridLines = function () {
-        if (isNumber(options.xAxis.ticks))
-            return d3.axisBottom(xScale).ticks(options.xAxis.ticks);
-        else
-            return d3.axisBottom(xScale);
-    };
-    svg.append("g")
-        .attr("transform", "translate(" + margin.left + "," + (height + margin.top) + ")")
-        .attr("class", "d3-grid")
-        .call(xGridLines().tickFormat("").tickSizeInner([-height]));
-
+    drawBackground(svg, options);
+    drawVerticalGridLines(svg, options, margin, height, xScale);
 
     // this g contains chart elements
     var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-
     // creating bars
-    g.selectAll(".d3-bar")
+    g.selectAll("rect")
         .data(dataset)
         .enter()
         .append("rect")
-        .attr("class", "d3-bar")
         .attr("x", 0)
         .attr("y", function (d) { return yScale(d.label) })
         .attr("height", yScale.bandwidth())
@@ -454,31 +424,12 @@ function drawBarChart(options, dataset) {
         .text(function (d) { return d.value; })
         .attr("text-anchor", "middle")
         .attr("x", function (d) { return xScale(d.value) + 10 })
-        .attr("y", function (d) { return yScale(d.label) + (yScale.bandwidth() / 2) + 5; })
-        .attr('fill', function (d) { return 'black' })
-        .attr("font-family", "sans-serif")
-        .attr("font-size", "11px");
+        .attr("y", function (d) { return yScale(d.label) + (yScale.bandwidth() / 2) + 5; });
+    applyDataLabelStyles(dataLabels, options);
 
 
-    // horizontal axis
-    if (options.xAxis.visible !== false) {
-        var axisBottom = d3.axisBottom(xScale);
-        if (isNumber(options.xAxis.ticks))
-            axisBottom.ticks(options.xAxis.ticks);
-        g.append("g")
-            .attr("class", "d3-axis-x")
-            .attr("transform", "translate(0," + height + ")")
-            .call(axisBottom);
-    }
-
-    // vertical axis
-    var axisLeft = d3.axisLeft(yScale);
-    g.append("g")
-        .attr("class", "d3-axix-y")
-        .call(axisLeft);
-
-
-
+    drawVerticalAxis(g, yScale, options)
+    drawHorizontalAxis(g, xScale, options, height);
 }
 
 function drawPieChart(options, dataset) {
@@ -602,7 +553,7 @@ function drawBackground(svg, options) {
     }
 }
 
-function drawGridLines(svg, options, margin, width, yScale) {
+function drawHorizontalGridLines(svg, options, margin, width, yScale) {
     gridLineTicks = isNumber(options.yAxis.ticks)
         ? yScale.ticks(options.yAxis.ticks)
         : yScale.ticks();
@@ -622,21 +573,42 @@ function drawGridLines(svg, options, margin, width, yScale) {
         .attr('stroke', function () { return isSet(options.grid.stroke) ? options.grid.stroke : '#e2e2e2'; });
 }
 
+function drawVerticalGridLines(svg, options, margin, height, xScale) {
+    gridLineTicks = isNumber(options.xAxis.ticks)
+        ? xScale.ticks(options.xAxis.ticks)
+        : xScale.ticks();
+    var gGrid = svg.append('g')
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+        .attr('class', function () {
+            return isSet(options.grid.className) ? options.grid.className : "";
+        });
+    var gGridLines = gGrid.selectAll('line')
+        .data(gridLineTicks)
+        .enter()
+        .append("line")
+        .attr('x1', function (d) { return xScale(d); })
+        .attr('x2', function (d) { return xScale(d); })
+        .attr('y1', 0)
+        .attr('y2', height)
+        .attr('stroke', function () { return isSet(options.grid.stroke) ? options.grid.stroke : '#e2e2e2'; });
+}
+
 function drawVerticalAxis(g, yScale, options) {
     var axisLeft = d3.axisLeft(yScale);
     if (isNumber(options.yAxis.ticks))
         axisLeft.ticks(options.yAxis.ticks);
     g.append("g")
-        .attr("class", "d3-axix-y")
         .call(axisLeft);
 }
 
 function drawHorizontalAxis(g, xScale, options, height) {
     if (options.xAxis.visible !== false) {
+        var axisBottom = d3.axisBottom(xScale);
+        if (isNumber(options.xAxis.ticks))
+            axisBottom.ticks(options.xAxis.ticks);
         g.append("g")
-            .attr("class", "d3-axis-x")
             .attr("transform", "translate(0," + height + ")")
-            .call(d3.axisBottom(xScale));
+            .call(axisBottom);
     }
 }
 
@@ -652,10 +624,11 @@ function drawHorizontalLabel(svg, options, margin, width, height) {
         var xPosition = (width / 2) - (options.xLabel.length * 2);
 
         svg.append('text')
-            .text(options.xLabel)
-            .attr('class', 'd3-x-label')
+            .text(options.xLabel)            
             .attr('x', xPosition)
-            .attr('y', yPosition);
+            .attr('y', yPosition)
+            .attr('font-size', 12)
+            .attr('fill', '#000');
     }
 }
 
@@ -686,7 +659,9 @@ function drawHorizontalDataLegends(svg, options, labelsArr, margin, colorScale) 
     gLegendsRects.append('text')
         .text(function (d, i) { return legendsTextScale(i) })
         .attr('x', 12)
-        .attr('y', 9);
+        .attr('y', 9)
+        .attr('font-size', 12)
+        .attr('fill', '#000');
     gLegendsRects.append('rect')
         .attr('x', 0)
         .attr('y', 0)
@@ -725,6 +700,7 @@ function drawVerticalDataLegends(svg, options, labelsArr, margin, colorScale) {
         .text(function (d, i) { return legendsTextScale(i) })
         .attr('x', 15)
         .attr('y', 10)
+        .attr('fill', '#000')
         .attr('font-size', 12);
 }
 

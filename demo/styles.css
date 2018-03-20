@@ -1,7 +1,7 @@
 svg {
-    border: 1px solid #ccc;
+    border: 0px solid #ccc;
 }
-
+/* 
 .d3-grid line {
     stroke: #e2e2e2;
     shape-rendering: crispEdges;
@@ -19,4 +19,4 @@ text.d3-x-label {
 .d3-legends text {
     fill: #333;
     font-size: 12px;
-}
+} */

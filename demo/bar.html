@@ -25,90 +25,65 @@
 
     <div class='container-fluid'>
 
-        <h1><a href="index.html">d3-wrapper</a> / Bar chart</h1>
+        <h1>
+            <a href="index.html">d3-wrapper</a> / Bar chart</h1>
         <br />
 
         <div class='row'>
             <div class='col-md-6'>
 
                 <svg id='bar-example-1'></svg>
-                <pre>
-var bar_example_1 = {
-    elementId: 'bar-example-1',
-    width: 600,
-    height: 200,
-    margin: {
-        left: 50,
-        right: 30
-    },
-    xAxis: {
-        visible: true, // set to false to hide x-axis 
-        ticks: 7, // number of ticks for x-axis
-        roundToMax: true // setting this to true will make x-axis to be max whole number greater that max number from dataset
-    },
-    yScale: {
-        paddingInner: 0.08, // vertical inner padding for columns
-        paddingOuter: .3, // vertical outer padding for columns                
-    },
-};
-var data_1 = [
-    { value: 9, label: 'Sedan', color: '#ce3a2f' },
-    { value: 11, label: 'SUV', color: '#5ac450' },
-    { value: 29, label: 'Truck', color: '#335bcc' },
-]
-drawBarChart(bar_example_1, data_1);
-                </pre>
+
+                <script>
+                    var bar_example_1 = {
+                        elementId: 'bar-example-1',
+                        backgroundColor: '#fff',
+                        width: 600,
+                        height: 200,
+                        margin: {
+                            left: 50,
+                            right: 30
+                        },
+                        xAxis: {
+                            visible: true, // set to false to hide x-axis 
+                            ticks: 7, // number of ticks for x-axis
+                            roundToMax: true // setting this to true will make x-axis to be max whole number greater that max number from dataset
+                        },
+                        yScale: {
+                            paddingInner: 0.08, // vertical inner padding for columns
+                            paddingOuter: .3, // vertical outer padding for columns                
+                        },
+                        dataPoint: {
+                            fontFamily: 'Verdana',
+                            fontSize: 13,
+                            color: '#d142f4',
+                            fontWeight: 'bold'
+                        },
+                        grid: {                            
+                            stroke: '#e2e2e2',
+                            className: 'grid-line-class-name'
+                        }
+                    };
+                    var data_1 = [
+                        { value: 9, label: 'Sedan', color: '#ce3a2f' },
+                        { value: 11, label: 'SUV', color: '#5ac450' },
+                        { value: 29, label: 'Truck', color: '#335bcc' },
+                    ]
+                    drawBarChart(bar_example_1, data_1);
+
+
+
+
+                </script>
+
 
             </div>
             <div class='col-md-6 '>
-                
+
             </div>
         </div>
 
     </div>
-
-
-    <script>
-        var bar_example_1 = {
-            elementId: 'bar-example-1',
-            backgroundColor: '#ccc',
-            width: 600,            
-            height: 200,
-            margin: {
-                left: 50,
-                right: 30
-            },
-            xAxis: {
-                visible: true, // set to false to hide x-axis 
-                ticks: 7, // number of ticks for x-axis
-                roundToMax: true // setting this to true will make x-axis to be max whole number greater that max number from dataset
-            },
-            yScale: {
-                paddingInner: 0.08, // vertical inner padding for columns
-                paddingOuter: .3, // vertical outer padding for columns                
-            },
-            dataPoint: {
-                fontFamily: 'Verdana',
-                fontSize: 12,
-                color: '#fff',
-                fontWeight: ''
-            },
-            grid: {
-                stroke: '#e2e2e2',
-                className: 'grid-line-class-name'
-            }
-        };
-        var data_1 = [
-            { value: 9, label: 'Sedan', color: '#ce3a2f' },
-            { value: 11, label: 'SUV', color: '#5ac450' },
-            { value: 29, label: 'Truck', color: '#335bcc' },
-        ]
-        drawBarChart(bar_example_1, data_1);
-
-
-
-        
-    </script>
 </body>
 
 </html>
