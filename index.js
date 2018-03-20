@@ -76,8 +76,7 @@ function drawColumnChart(options, dataset) {
             return xScale(d.label) + (xScale.bandwidth() / 2) - textLength;
         })
         .attr("y", function (d) { return yScale(d.value) - 4; });
-    applyDataLabelStyles(dataLabels, options);      
-
+    applyDataLabelStyles(dataLabels, options);
 
     drawVerticalAxis(g, yScale, options)
     drawHorizontalAxis(g, xScale, options, height);
@@ -85,7 +84,10 @@ function drawColumnChart(options, dataset) {
 
 
     // horizontal legends
-    drawDataLegends(svg, options, dataset, margin, width, height, colorScale);
+    if(options.labelsBottom) {
+        var labelsArr = dataset.map(function (d) { return d.label });
+        drawDataLegends(svg, options, labelsArr, margin, width, height, colorScale);
+    }
 
 }
 
@@ -103,17 +105,11 @@ function drawGroupedColumnChart(options, dataset) {
         .attr("height", options.height);
 
     // set margins
-    var margin = { top: 20, right: 15, bottom: 25, left: 25 }; // default margins
-    if (options.margin) {
-        margin.top = isNumber(options.margin.top) ? options.margin.top : margin.top;
-        margin.right = isNumber(options.margin.right) ? options.margin.right : margin.right;
-        margin.bottom = isNumber(options.margin.bottom) ? options.margin.bottom : margin.bottom;
-        margin.left = isNumber(options.margin.left) ? options.margin.left : margin.left;
-    }
+    var margin = createMargin(options);
 
     // width and height of element that contains chart bars
-    var width = options.width - margin.left - margin.right;
-    var height = options.height - margin.top - margin.bottom;
+    var width = calculateWidth(options, margin);
+    var height = calculateHeight(options, margin);
 
 
     // get array of labels from groups
@@ -160,12 +156,8 @@ function drawGroupedColumnChart(options, dataset) {
         .range(dataset.labels.map(function (d) { return d.color }));
 
 
-
-    // making background if needed
     drawBackground(svg, options);
-
     drawGridLines(svg, options, margin, width, yScale);
-
 
     // this g contains chart elements
     var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -188,7 +180,7 @@ function drawGroupedColumnChart(options, dataset) {
         .attr("height", function (d) { return height - yScale(d.value); })
         .attr("fill", function (d) { return colorScale(d.label); });
     // creating texts for values in single group
-    var groupTexts = groupsG
+    var dataLabels = groupsG
         .selectAll("text")
         .data(function (d) { return d.values })
         .enter()
@@ -198,64 +190,15 @@ function drawGroupedColumnChart(options, dataset) {
             var textLength = d.label.length * 2;
             return xInnerScale(d.label) + (xInnerScale.bandwidth() / 2) - textLength;
         })
-        .attr("y", function (d) { return yScale(d.value) - 4; })
-        .attr('font-family', function () {
-            return isSet(options.dataPoint.fontFamily) ? options.dataPoint.fontFamily : 'sans-serif';
-        })
-        .attr('font-size', function () {
-            return isSet(options.dataPoint.fontSize) ? options.dataPoint.fontSize : 12;
-        })
-        .attr('fill', function () {
-            return isSet(options.dataPoint.color) ? options.dataPoint.color : 'black';
-        })
-        .attr('font-weight', function () {
-            return (isSet(options.dataPoint.fontWeight) && options.dataPoint.fontWeight.length > 0)
-                ? options.dataPoint.fontWeight
-                : '';
-        });
-
-
-
-
-
-    // vertical axes and ticks
+        .attr("y", function (d) { return yScale(d.value) - 4; });
+    applyDataLabelStyles(dataLabels, options);      
+        
     drawVerticalAxis(g, yScale, options)
-    // horizontal axis
     drawHorizontalAxis(g, xScale, options, height);
 
-
-    // showing horizontal legends
-    var legendsTextScale = d3.scaleOrdinal()
-        .range(dataset.labels.map(function (d) { return d.label }))
-        .domain(d3.range(0, dataset.labels.length));
-
-    var legendsBandScale = d3.scaleBand()
-        .domain(dataset.labels.map(function (d) { return d.label }))
-        .rangeRound([0, width]);
-    var gLegendY = height + margin.top + 30;
-    var gLegends = svg.append('g')
-        .attr("transform", "translate(" + margin.left + "," + gLegendY + ")");
-
-    var gLegendsItem = gLegends.selectAll("g")
-        .data(dataset.labels)
-        .enter()
-        .append('g')
-        .attr('class', 'd3-legends')
-        .attr("transform", function (d, i) { return "translate(" + legendsBandScale(d.label) + "," + 0 + ")"; });
-
-    gLegendsItem.append('text')
-        .text(function (d, i) { return legendsTextScale(i) })
-        .attr('x', 12)
-        .attr('y', 9);
-    gLegendsItem.append('rect')
-        .attr('x', 0)
-        .attr('y', 0)
-        .attr('width', 10)
-        .attr('height', 10)
-        .attr('fill', function (d, i) {
-            return colorScale(d.label);
-        });
-
+    // horizontal legends        
+    var labelsArr = dataset.labels.map(function (d) { return d.label });
+    drawDataLegends(svg, options, labelsArr, margin, width, height, colorScale);
 }
 
 function drawStackedColumnChart(options, dataset) {
@@ -272,17 +215,11 @@ function drawStackedColumnChart(options, dataset) {
         .attr("height", options.height);
 
     // set margins
-    var margin = { top: 20, right: 15, bottom: 25, left: 25 }; // default margins
-    if (options.margin) {
-        margin.top = isNumber(options.margin.top) ? options.margin.top : margin.top;
-        margin.right = isNumber(options.margin.right) ? options.margin.right : margin.right;
-        margin.bottom = isNumber(options.margin.bottom) ? options.margin.bottom : margin.bottom;
-        margin.left = isNumber(options.margin.left) ? options.margin.left : margin.left;
-    }
+    var margin = createMargin(options);
 
     // width and height of element that contains chart bars
-    var width = options.width - margin.left - margin.right;
-    var height = options.height - margin.top - margin.bottom;
+    var width = calculateWidth(options, margin);
+    var height = calculateHeight(options, margin);
 
 
     // change shape of incoming dataset
@@ -349,9 +286,7 @@ function drawStackedColumnChart(options, dataset) {
         .range(dataset.labels.map(function (d) { return d.color }));
 
 
-    // making background if needed
     drawBackground(svg, options);
-
     drawGridLines(svg, options, margin, width, yScale);
 
     // this g contains chart elements
@@ -375,7 +310,7 @@ function drawStackedColumnChart(options, dataset) {
         .attr("width", xScale.bandwidth());
 
 
-    var texts = gGroup.selectAll(".d3-stack-label")
+    var dataLabels = gGroup.selectAll(".d3-stack-label")
         .data(function (d) { return d.values; })
         .enter()
         .append("text")
@@ -388,67 +323,16 @@ function drawStackedColumnChart(options, dataset) {
             var textLength = d.groupLabel.length * 2;
             return xScale(d.groupLabel) + (xScale.bandwidth() / 2) - textLength;
         })
-        .attr("y", function (d) { return yScale(d.value + d.yValue) + 13 })
-        .attr('font-family', function () {
-            return isSet(options.dataPoint.fontFamily) ? options.dataPoint.fontFamily : 'sans-serif';
-        })
-        .attr('font-size', function () {
-            return isSet(options.dataPoint.fontSize) ? options.dataPoint.fontSize : 12;
-        })
-        .attr('fill', function () {
-            return isSet(options.dataPoint.color) ? options.dataPoint.color : 'black';
-        })
-        .attr('font-weight', function () {
-            return (isSet(options.dataPoint.fontWeight) && options.dataPoint.fontWeight.length > 0)
-                ? options.dataPoint.fontWeight
-                : '';
-        });
+        .attr("y", function (d) { return yScale(d.value + d.yValue) + 13 });
+    applyDataLabelStyles(dataLabels, options);
 
 
-
-
-
-    if (isSet(options.dataPoint.fontWeight) && options.dataPoint.fontWeight.length > 0)
-        texts.attr("font-weight", options.dataPoint.fontWeight)
-
-
-
-    // vertical axes and ticks
     drawVerticalAxis(g, yScale, options)
-    // horizontal axis
     drawHorizontalAxis(g, xScale, options, height);
 
-    // showing horizontal legends
-    var legendsTextScale = d3.scaleOrdinal()
-        .range(dataset.labels.map(function (d) { return d.label }))
-        .domain(d3.range(0, dataset.labels.length));
-
-    var legendsBandScale = d3.scaleBand()
-        .domain(dataset.labels.map(function (d) { return d.label }))
-        .rangeRound([0, width]);
-    var gLegendY = height + margin.top + 30;
-    var gLegends = svg.append('g')
-        .attr("transform", "translate(" + margin.left + "," + gLegendY + ")");
-
-    var gLegendsRects = gLegends.selectAll("rect")
-        .data(dataset.labels)
-        .enter()
-        .append('g')
-        .attr('class', 'd3-legends')
-        .attr("transform", function (d, i) { return "translate(" + legendsBandScale(d.label) + "," + 0 + ")"; });
-
-    gLegendsRects.append('text')
-        .text(function (d, i) { return legendsTextScale(i) })
-        .attr('x', 12)
-        .attr('y', 9);
-    gLegendsRects.append('rect')
-        .attr('x', 0)
-        .attr('y', 0)
-        .attr('width', 10)
-        .attr('height', 10)
-        .attr('fill', function (d, i) {
-            return colorScale(d.label);
-        });
+    // horizontal legends        
+    var labelsArr = dataset.labels.map(function (d) { return d.label });
+    drawDataLegends(svg, options, labelsArr, margin, width, height, colorScale);
 }
 
 function drawBarChart(options, dataset) {
@@ -756,46 +640,40 @@ function drawHorizontalLabel(svg, options, margin, width, height) {
     }
 }
 
-function drawDataLegends(svg, options, dataset, margin, width, height, colorScale) {
-    // horizontal legends
-    if (options.labelsBottom === true) {
-        var legendsTextScale = d3.scaleOrdinal()
-            .range(dataset.map(function (d) { return d.label }))
-            .domain(d3.range(0, dataset.length));
+function drawDataLegends(svg, options, labelsArr, margin, width, height, colorScale) {
+    // data legends will be drawn at the bottom of SVG
+    
+	var legendsTextScale = d3.scaleOrdinal()
+		.range(labelsArr)
+		.domain(d3.range(0, labelsArr.length));
 
-        var legendsBandScale = d3.scaleBand()
-            .domain(dataset.map(function (d) { return d.label }))
-            .rangeRound([0, width]);
+	var legendsBandScale = d3.scaleBand()
+		.domain(labelsArr)
+		.rangeRound([0, width]);
 
 
-        var gLegendY = height + margin.top + 10;
-        if (isSet(options.xLabel))
-            gLegendY += 20;
+	var gLegendY = options.height - 15;	
 
-        var gLegends = svg.append('g')
-            .attr("transform", "translate(" + margin.left + "," + gLegendY + ")");
+	var gLegends = svg.append('g')
+		.attr("transform", "translate(" + margin.left + "," + gLegendY + ")");
 
-        var gLegendsRects = gLegends.selectAll("rect")
-            .data(dataset)
-            .enter()
-            .append('g')
-            .attr('class', 'd3-legends')
-            .attr("transform", function (d, i) { return "translate(" + legendsBandScale(d.label) + "," + 0 + ")"; });
+	var gLegendsRects = gLegends.selectAll("rect")
+		.data(labelsArr)
+		.enter()
+		.append('g')
+		.attr('class', 'd3-legends')
+		.attr("transform", function (d) { return "translate(" + legendsBandScale(d) + "," + 0 + ")"; });
 
-        gLegendsRects.append('text')
-            .text(function (d, i) { return legendsTextScale(i) })
-            .attr('x', 12)
-            .attr('y', 9);
-        gLegendsRects.append('rect')
-            .attr('x', 0)
-            .attr('y', 0)
-            .attr('width', 10)
-            .attr('height', 10)
-            .attr('fill', function (d, i) {
-                return colorScale(d.label);
-            });
-
-    }
+	gLegendsRects.append('text')
+		.text(function (d, i) { return legendsTextScale(i) })
+		.attr('x', 12)
+		.attr('y', 9);
+	gLegendsRects.append('rect')
+		.attr('x', 0)
+		.attr('y', 0)
+		.attr('width', 10)
+		.attr('height', 10)
+		.attr('fill', function (d, i) { return colorScale(d); });
 }
 
 function applyDataLabelStyles(dataLabels, options) {
@@ -870,7 +748,6 @@ function areOptionsValid(options) {
     return valid;
 }
 
-// returns true if value is number
 function isNumber(value) {
     if (typeof (value) !== 'undefined' && value !== null)
         return !isNaN(value);
