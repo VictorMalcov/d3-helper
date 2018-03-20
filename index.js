@@ -14,17 +14,11 @@ function drawColumnChart(options, dataset) {
         .attr("height", options.height);
 
     // set margins
-    var margin = { top: 20, right: 15, bottom: 25, left: 25 }; // default margins
-    if (options.margin) {
-        margin.top = isNumber(options.margin.top) ? options.margin.top : margin.top;
-        margin.right = isNumber(options.margin.right) ? options.margin.right : margin.right;
-        margin.bottom = isNumber(options.margin.bottom) ? options.margin.bottom : margin.bottom;
-        margin.left = isNumber(options.margin.left) ? options.margin.left : margin.left;
-    }
+    var margin = createMargin(options);
 
     // width and height of element that contains chart bars
-    var width = options.width - margin.left - margin.right;
-    var height = options.height - margin.top - margin.bottom;
+    var width = calculateWidth(options, margin);
+    var height = calculateHeight(options, margin);
 
 
     // creating x-scale
@@ -52,52 +46,11 @@ function drawColumnChart(options, dataset) {
         .range(dataset.map(function (d) { return d.color }));
 
 
-    // making background if needed
-    if (isSet(options.backgroundColor) && options.backgroundColor.length > 0) {
-        svg.append('rect')
-            .attr("x", 0)
-            .attr("y", 0)
-            .attr("width", options.width)
-            .attr("height", options.height)
-            .attr("fill", options.backgroundColor);
-    }
-
-
-    // OLD WAY of making horizontal grid lines
-    // var yGridLines = function () {
-    //     if (isNumber(options.yAxis.ticks))
-    //         return d3.axisLeft(yScale).ticks(options.yAxis.ticks);
-    //     else
-    //         return d3.axisLeft(yScale);
-    // };
-    // svg.append("g")
-    //     .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-    //     .attr("class", "d3-grid")
-    //     .call(yGridLines().tickSize(-width).tickFormat(""));
-    gridLineTicks = isNumber(options.yAxis.ticks)
-        ? yScale.ticks(options.yAxis.ticks)
-        : yScale.ticks();
-    var gGrid = svg.append('g')
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-        .attr('class', function () {
-            return isSet(options.grid.className) ? options.grid.className : "";
-        });
-    var gGridLines = gGrid.selectAll('line')
-        .data(gridLineTicks)
-        .enter()
-        .append("line")
-        .attr('x1', 0)
-        .attr('x2', width)
-        .attr('y1', function (d) { return yScale(d); })
-        .attr('y2', function (d) { return yScale(d); })
-        .attr('stroke', function () {
-            return isSet(options.grid.stroke) ? options.grid.stroke : '#e2e2e2';
-        });
-
+    drawBackground(svg, options);
+    drawGridLines(svg, options, margin, width, yScale);
 
     // this g contains chart elements
     var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
 
     // building rect objects
     var rects = g.selectAll("rect")
@@ -122,99 +75,18 @@ function drawColumnChart(options, dataset) {
             var textLength = d.label.length * 2;
             return xScale(d.label) + (xScale.bandwidth() / 2) - textLength;
         })
-        .attr("y", function (d) { return yScale(d.value) - 4; })
-        .attr('font-family', function() {
-            return isSet(options.dataPoint.fontFamily) ? options.dataPoint.fontFamily : 'sans-serif';
-        })
-        .attr('font-size', function() {
-            return isSet(options.dataPoint.fontSize) ? options.dataPoint.fontSize : 12;
-        })
-        .attr('fill', function() {
-            return isSet(options.dataPoint.color) ? options.dataPoint.color : 'black';
-        })
-        .attr('font-weight', function() {
-            return (isSet(options.dataPoint.fontWeight) && options.dataPoint.fontWeight.length > 0)
-                ? options.dataPoint.fontWeight
-                : '';
-        });
-
-    
+        .attr("y", function (d) { return yScale(d.value) - 4; });
+    applyDataLabelStyles(dataLabels, options);      
 
 
-    // vertical axes and ticks
-    var axisLeft = d3.axisLeft(yScale);
-    if (isNumber(options.yAxis.ticks))
-        axisLeft.ticks(options.yAxis.ticks);
-    g.append("g")
-        .attr("class", "d3-axix-y")
-        .call(axisLeft);
+    drawVerticalAxis(g, yScale, options)
+    drawHorizontalAxis(g, xScale, options, height);
+    drawHorizontalLabel(svg, options, margin, width, height);
 
-
-    // horizontal axis
-    if (options.xAxis.visible !== false) {
-        g.append("g")
-            .attr("class", "d3-axis-x")
-            .attr("transform", "translate(0," + height + ")")
-            .call(d3.axisBottom(xScale));
-    }
-
-
-    // horizontal label
-    if (isSet(options.xLabel)) {
-
-        var yPosition = height + margin.top + 15; // constant number is added because text is drawm from bottom to top
-        if (options.xAxis.visible !== false) {
-            yPosition += 20;
-        }
-
-        var xPosition = (width / 2) - (options.xLabel.length * 2);
-
-        svg.append('text')
-            .text(options.xLabel)
-            .attr('class', 'd3-x-label')
-            .attr('x', xPosition)
-            .attr('y', yPosition);
-    }
 
     // horizontal legends
-    if (options.labelsBottom === true) {
-        var legendsTextScale = d3.scaleOrdinal()
-            .range(dataset.map(function (d) { return d.label }))
-            .domain(d3.range(0, dataset.length));
+    drawDataLegends(svg, options, dataset, margin, width, height, colorScale);
 
-        var legendsBandScale = d3.scaleBand()
-            .domain(dataset.map(function (d) { return d.label }))
-            .rangeRound([0, width]);
-
-
-        var gLegendY = height + margin.top + 10;
-        if (isSet(options.xLabel))
-            gLegendY += 20;
-
-        var gLegends = svg.append('g')
-            .attr("transform", "translate(" + margin.left + "," + gLegendY + ")");
-
-        var gLegendsRects = gLegends.selectAll("rect")
-            .data(dataset)
-            .enter()
-            .append('g')
-            .attr('class', 'd3-legends')
-            .attr("transform", function (d, i) { return "translate(" + legendsBandScale(d.label) + "," + 0 + ")"; });
-
-        gLegendsRects.append('text')
-            .text(function (d, i) { return legendsTextScale(i) })
-            .attr('x', 12)
-            .attr('y', 9);
-        gLegendsRects.append('rect')
-            .attr('x', 0)
-            .attr('y', 0)
-            .attr('width', 10)
-            .attr('height', 10)
-            .attr('fill', function (d, i) {
-                return colorScale(d.label);
-            });
-
-    }
 }
 
 function drawGroupedColumnChart(options, dataset) {
@@ -288,47 +160,12 @@ function drawGroupedColumnChart(options, dataset) {
         .range(dataset.labels.map(function (d) { return d.color }));
 
 
+
     // making background if needed
-    if (isSet(options.backgroundColor) && options.backgroundColor.length > 0) {
-        svg.append('rect')
-            .attr("x", 0)
-            .attr("y", 0)
-            .attr("width", options.width)
-            .attr("height", options.height)
-            .attr("fill", options.backgroundColor);
-    }
+    drawBackground(svg, options);
 
+    drawGridLines(svg, options, margin, width, yScale);
 
-    // OLD WAY of making horizontal grid lines
-    // var yGridLines = function () {
-    //     if (isNumber(options.yAxis.ticks))
-    //         return d3.axisLeft(yScale).ticks(options.yAxis.ticks);
-    //     else
-    //         return d3.axisLeft(yScale);
-    // };
-    // svg.append("g")
-    //     .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-    //     .attr("class", "d3-grid")
-    //     .call(yGridLines().tickSize(-width).tickFormat(""));
-    gridLineTicks = isNumber(options.yAxis.ticks)
-        ? yScale.ticks(options.yAxis.ticks)
-        : yScale.ticks();
-    var gGrid = svg.append('g')
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-        .attr('class', function () {
-            return isSet(options.grid.className) ? options.grid.className : "";
-        });
-    var gGridLines = gGrid.selectAll('line')
-        .data(gridLineTicks)
-        .enter()
-        .append("line")
-        .attr('x1', 0)
-        .attr('x2', width)
-        .attr('y1', function (d) { return yScale(d); })
-        .attr('y2', function (d) { return yScale(d); })
-        .attr('stroke', function () {
-            return isSet(options.grid.stroke) ? options.grid.stroke : '#e2e2e2';
-        });
 
     // this g contains chart elements
     var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -362,41 +199,29 @@ function drawGroupedColumnChart(options, dataset) {
             return xInnerScale(d.label) + (xInnerScale.bandwidth() / 2) - textLength;
         })
         .attr("y", function (d) { return yScale(d.value) - 4; })
-        .attr('font-family', function() {
+        .attr('font-family', function () {
             return isSet(options.dataPoint.fontFamily) ? options.dataPoint.fontFamily : 'sans-serif';
         })
-        .attr('font-size', function() {
+        .attr('font-size', function () {
             return isSet(options.dataPoint.fontSize) ? options.dataPoint.fontSize : 12;
         })
-        .attr('fill', function() {
+        .attr('fill', function () {
             return isSet(options.dataPoint.color) ? options.dataPoint.color : 'black';
         })
-        .attr('font-weight', function() {
+        .attr('font-weight', function () {
             return (isSet(options.dataPoint.fontWeight) && options.dataPoint.fontWeight.length > 0)
                 ? options.dataPoint.fontWeight
                 : '';
-        }); 
+        });
 
 
 
 
-
-    // horizontal axis
-    if (options.xAxis.visible !== false) {
-        g.append("g")
-            .attr("class", "axis")
-            .attr("transform", "translate(0," + height + ")")
-            .call(d3.axisBottom(xScale));
-    }
 
     // vertical axes and ticks
-    var axisLeft = d3.axisLeft(yScale);
-    if (isNumber(options.yAxis.ticks))
-        axisLeft.ticks(options.yAxis.ticks);
-    g.append("g")
-        .attr("class", "d3-axix-y")
-        .call(axisLeft);
-
+    drawVerticalAxis(g, yScale, options)
+    // horizontal axis
+    drawHorizontalAxis(g, xScale, options, height);
 
 
     // showing horizontal legends
@@ -411,18 +236,18 @@ function drawGroupedColumnChart(options, dataset) {
     var gLegends = svg.append('g')
         .attr("transform", "translate(" + margin.left + "," + gLegendY + ")");
 
-    var gLegendsRects = gLegends.selectAll("rect")
+    var gLegendsItem = gLegends.selectAll("g")
         .data(dataset.labels)
         .enter()
         .append('g')
         .attr('class', 'd3-legends')
         .attr("transform", function (d, i) { return "translate(" + legendsBandScale(d.label) + "," + 0 + ")"; });
 
-    gLegendsRects.append('text')
+    gLegendsItem.append('text')
         .text(function (d, i) { return legendsTextScale(i) })
         .attr('x', 12)
         .attr('y', 9);
-    gLegendsRects.append('rect')
+    gLegendsItem.append('rect')
         .attr('x', 0)
         .attr('y', 0)
         .attr('width', 10)
@@ -525,49 +350,9 @@ function drawStackedColumnChart(options, dataset) {
 
 
     // making background if needed
-    if (isSet(options.backgroundColor) && options.backgroundColor.length > 0) {
-        svg.append('rect')
-            .attr("x", 0)
-            .attr("y", 0)
-            .attr("width", options.width)
-            .attr("height", options.height)
-            .attr("fill", options.backgroundColor);
-    }
+    drawBackground(svg, options);
 
-
-    // OLD WAY OF making horizontal grid lines
-    // var yGridLines = function () {
-    //     if (isNumber(options.yAxis.ticks))
-    //         return d3.axisLeft(yScale).ticks(options.yAxis.ticks);
-    //     else
-    //         return d3.axisLeft(yScale);
-    // };
-    // svg.append("g")
-    //     .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-    //     .attr("class", "d3-grid")
-    //     .call(yGridLines().tickSize(-width).tickFormat(""));
-
-    gridLineTicks = isNumber(options.yAxis.ticks)
-        ? yScale.ticks(options.yAxis.ticks)
-        : yScale.ticks();
-    var gGrid = svg.append('g')
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-        .attr('class', function () {
-            return isSet(options.grid.className) ? options.grid.className : "";
-        });
-    var gGridLines = gGrid.selectAll('line')
-        .data(gridLineTicks)
-        .enter()
-        .append("line")
-        .attr('x1', 0)
-        .attr('x2', width)
-        .attr('y1', function (d) { return yScale(d); })
-        .attr('y2', function (d) { return yScale(d); })
-        .attr('stroke', function () {
-            return isSet(options.grid.stroke) ? options.grid.stroke : '#e2e2e2';
-        });
-
-
+    drawGridLines(svg, options, margin, width, yScale);
 
     // this g contains chart elements
     var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -604,45 +389,34 @@ function drawStackedColumnChart(options, dataset) {
             return xScale(d.groupLabel) + (xScale.bandwidth() / 2) - textLength;
         })
         .attr("y", function (d) { return yScale(d.value + d.yValue) + 13 })
-        .attr('font-family', function() {
+        .attr('font-family', function () {
             return isSet(options.dataPoint.fontFamily) ? options.dataPoint.fontFamily : 'sans-serif';
         })
-        .attr('font-size', function() {
+        .attr('font-size', function () {
             return isSet(options.dataPoint.fontSize) ? options.dataPoint.fontSize : 12;
         })
-        .attr('fill', function() {
+        .attr('fill', function () {
             return isSet(options.dataPoint.color) ? options.dataPoint.color : 'black';
         })
-        .attr('font-weight', function() {
+        .attr('font-weight', function () {
             return (isSet(options.dataPoint.fontWeight) && options.dataPoint.fontWeight.length > 0)
                 ? options.dataPoint.fontWeight
                 : '';
         });
 
-    
-    
-    
-    
+
+
+
+
     if (isSet(options.dataPoint.fontWeight) && options.dataPoint.fontWeight.length > 0)
         texts.attr("font-weight", options.dataPoint.fontWeight)
 
 
 
-
-    // horizontal axis
-    g.append("g")
-        .attr("class", "d3-axis-x")
-        .attr("transform", "translate(0," + height + ")")
-        .call(d3.axisBottom(xScale));
-
     // vertical axes and ticks
-    var axisLeft = d3.axisLeft(yScale);
-    if (isNumber(options.yAxis.ticks))
-        axisLeft.ticks(options.yAxis.ticks);
-    g.append("g")
-        .attr("class", "d3-axix-y")
-        .call(axisLeft);
-
+    drawVerticalAxis(g, yScale, options)
+    // horizontal axis
+    drawHorizontalAxis(g, xScale, options, height);
 
     // showing horizontal legends
     var legendsTextScale = d3.scaleOrdinal()
@@ -729,7 +503,7 @@ function drawBarChart(options, dataset) {
         .range(dataset.map(function (d) { return d.color }));
 
 
-     // making background if needed
+    // making background if needed
     if (isSet(options.backgroundColor) && options.backgroundColor.length > 0) {
         svg.append('rect')
             .attr("x", 0)
@@ -913,6 +687,155 @@ function drawPieChart(options, dataset) {
 
 }
 
+function drawBackground(svg, options) {
+    // making background if needed
+    if (isSet(options.backgroundColor) && options.backgroundColor.length > 0) {
+        svg.append('rect')
+            .attr("x", 0)
+            .attr("y", 0)
+            .attr("width", options.width)
+            .attr("height", options.height)
+            .attr("fill", options.backgroundColor);
+    }
+}
+
+function drawGridLines(svg, options, margin, width, yScale) {
+    gridLineTicks = isNumber(options.yAxis.ticks)
+        ? yScale.ticks(options.yAxis.ticks)
+        : yScale.ticks();
+    var gGrid = svg.append('g')
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+        .attr('class', function () {
+            return isSet(options.grid.className) ? options.grid.className : "";
+        });
+    var gGridLines = gGrid.selectAll('line')
+        .data(gridLineTicks)
+        .enter()
+        .append("line")
+        .attr('x1', 0)
+        .attr('x2', width)
+        .attr('y1', function (d) { return yScale(d); })
+        .attr('y2', function (d) { return yScale(d); })
+        .attr('stroke', function () { return isSet(options.grid.stroke) ? options.grid.stroke : '#e2e2e2'; });
+}
+
+function drawVerticalAxis(g, yScale, options) {
+    var axisLeft = d3.axisLeft(yScale);
+    if (isNumber(options.yAxis.ticks))
+        axisLeft.ticks(options.yAxis.ticks);
+    g.append("g")
+        .attr("class", "d3-axix-y")
+        .call(axisLeft);
+}
+
+function drawHorizontalAxis(g, xScale, options, height) {
+    if (options.xAxis.visible !== false) {
+        g.append("g")
+            .attr("class", "d3-axis-x")
+            .attr("transform", "translate(0," + height + ")")
+            .call(d3.axisBottom(xScale));
+    }
+}
+
+function drawHorizontalLabel(svg, options, margin, width, height) {
+    // horizontal label
+    if (isSet(options.xLabel)) {
+
+        var yPosition = height + margin.top + 15; // constant number is added because text is drawm from bottom to top
+        if (options.xAxis.visible !== false) {
+            yPosition += 20;
+        }
+
+        var xPosition = (width / 2) - (options.xLabel.length * 2);
+
+        svg.append('text')
+            .text(options.xLabel)
+            .attr('class', 'd3-x-label')
+            .attr('x', xPosition)
+            .attr('y', yPosition);
+    }
+}
+
+function drawDataLegends(svg, options, dataset, margin, width, height, colorScale) {
+    // horizontal legends
+    if (options.labelsBottom === true) {
+        var legendsTextScale = d3.scaleOrdinal()
+            .range(dataset.map(function (d) { return d.label }))
+            .domain(d3.range(0, dataset.length));
+
+        var legendsBandScale = d3.scaleBand()
+            .domain(dataset.map(function (d) { return d.label }))
+            .rangeRound([0, width]);
+
+
+        var gLegendY = height + margin.top + 10;
+        if (isSet(options.xLabel))
+            gLegendY += 20;
+
+        var gLegends = svg.append('g')
+            .attr("transform", "translate(" + margin.left + "," + gLegendY + ")");
+
+        var gLegendsRects = gLegends.selectAll("rect")
+            .data(dataset)
+            .enter()
+            .append('g')
+            .attr('class', 'd3-legends')
+            .attr("transform", function (d, i) { return "translate(" + legendsBandScale(d.label) + "," + 0 + ")"; });
+
+        gLegendsRects.append('text')
+            .text(function (d, i) { return legendsTextScale(i) })
+            .attr('x', 12)
+            .attr('y', 9);
+        gLegendsRects.append('rect')
+            .attr('x', 0)
+            .attr('y', 0)
+            .attr('width', 10)
+            .attr('height', 10)
+            .attr('fill', function (d, i) {
+                return colorScale(d.label);
+            });
+
+    }
+}
+
+function applyDataLabelStyles(dataLabels, options) {
+    dataLabels
+        .attr('font-family', function () {
+            return isSet(options.dataPoint.fontFamily) ? options.dataPoint.fontFamily : 'sans-serif';
+        })
+        .attr('font-size', function () {
+            return isSet(options.dataPoint.fontSize) ? options.dataPoint.fontSize : 12;
+        })
+        .attr('fill', function () {
+            return isSet(options.dataPoint.color) ? options.dataPoint.color : 'black';
+        })
+        .attr('font-weight', function () {
+            return (isSet(options.dataPoint.fontWeight) && options.dataPoint.fontWeight.length > 0)
+                ? options.dataPoint.fontWeight
+                : '';
+        });
+}
+
+function createMargin(options) {
+    options = options || {};
+    var margin = { top: 20, right: 15, bottom: 25, left: 25 }; // default margins
+    if (options.margin) {
+        margin.top = isNumber(options.margin.top) ? options.margin.top : margin.top;
+        margin.right = isNumber(options.margin.right) ? options.margin.right : margin.right;
+        margin.bottom = isNumber(options.margin.bottom) ? options.margin.bottom : margin.bottom;
+        margin.left = isNumber(options.margin.left) ? options.margin.left : margin.left;
+    }
+    return margin;
+}
+
+function calculateWidth(options, margin) {
+    return options.width - margin.left - margin.right;
+}
+
+function calculateHeight(options, margin) {
+    return options.height - margin.top - margin.bottom;
+}
+
 function areOptionsValid(options) {
     if (typeof (options) === 'undefined' || options === null)
         return false;
@@ -997,7 +920,7 @@ function getWholeMaxNumber(num) {
             break;
     }
 
-    if (num < wholeNum)
+    if (num >= wholeNum)
         return (Math.floor(num / wholeNum) * wholeNum) + wholeNum;
     else
         return num;
